@@ -408,377 +408,151 @@
   </div>
 </div>
 
-<!-- LIVE NEWS SECTION -->
-<div class="news-section" id="newsSection">
-  <div class="section-label" style="padding:0 32px;max-width:860px;margin:0 auto 16px;">🗞️ IT & Cybersecurity News</div>
-  <div class="news-wrap">
-    <div class="news-controls">
-      <div class="news-filters" id="newsFilters">
-        <button class="news-filter active" data-key="all">All IT</button>
-        <button class="news-filter" data-key="security">Cybersecurity</button>
-        <button class="news-filter" data-key="windows">Windows & Networking</button>
-        <button class="news-filter" data-key="certs">Certifications</button>
-      </div>
-      <button class="news-refresh" id="newsRefresh" onclick="loadNews()">
-        <span id="refreshIcon">↻</span> Refresh
-      </button>
-    </div>
-    <div class="news-feed" id="newsFeed">
-      <div class="news-placeholder">
-        <div class="news-placeholder-icon">📡</div>
-        <div class="news-placeholder-text">Click a topic to load the latest news</div>
-        <button class="news-load-btn" onclick="loadNews()">Load IT News</button>
+
+<!-- TIP OF THE DAY -->
+<div class="tip-section">
+  <div class="section-label" style="padding:0 32px;max-width:860px;margin:0 auto 16px;">💡 IT Tip of the Day</div>
+  <div class="tip-wrap">
+    <div class="tip-category" id="tipCategory">Loading…</div>
+    <div class="tip-body">
+      <div class="tip-icon" id="tipIcon">🖥️</div>
+      <div class="tip-content">
+        <div class="tip-title" id="tipTitle"></div>
+        <div class="tip-text" id="tipText"></div>
+        <div class="tip-command" id="tipCommand" style="display:none"></div>
       </div>
     </div>
-    <div class="news-footer" id="newsFooter" style="display:none">
-      <span id="newsTimestamp"></span>
-      <span style="color:var(--border)">·</span>
-      <span style="color:var(--text-muted);font-size:12px">Powered by Claude AI</span>
+    <div class="tip-footer">
+      <span id="tipCounter"></span>
+      <button class="tip-next" onclick="nextTip()">Next tip →</button>
     </div>
   </div>
 </div>
 
 <style>
-.news-section {
-  max-width: 860px;
-  margin: 0 auto 64px;
-  padding: 0 32px;
-}
-.news-wrap {
+.tip-section { max-width: 860px; margin: 0 auto 64px; padding: 0 32px; }
+.tip-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: var(--shadow);
 }
-.news-controls {
+.tip-category {
+  padding: 8px 18px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.tip-body {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 22px 20px 18px;
+}
+.tip-icon { font-size: 36px; flex-shrink: 0; line-height: 1; }
+.tip-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 7px; color: var(--text); }
+.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+.tip-command {
+  margin-top: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--green, #2E7D52);
+  word-break: break-all;
+}
+.tip-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.news-filters {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.news-filter {
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1.5px solid var(--border);
-  background: transparent;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all .15s;
-}
-.news-filter:hover { background: var(--surface); color: var(--text); }
-.news-filter.active { background: var(--text); color: var(--surface); border-color: var(--text); }
-.news-refresh {
-  padding: 6px 14px;
-  border-radius: 7px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.news-refresh:hover { background: var(--surface2); color: var(--text); }
-.news-refresh:disabled { opacity: .5; cursor: not-allowed; }
-.news-feed { min-height: 120px; }
-.news-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  gap: 10px;
-  text-align: center;
-}
-.news-placeholder-icon { font-size: 32px; }
-.news-placeholder-text { font-size: 14px; color: var(--text-muted); }
-.news-load-btn {
-  margin-top: 6px;
-  padding: 8px 20px;
-  background: var(--text);
-  color: var(--surface);
-  border: none;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity .15s;
-}
-.news-load-btn:hover { opacity: .85; }
-.news-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 40px 24px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-.news-spinner {
-  width: 18px; height: 18px;
-  border: 2px solid var(--border);
-  border-top-color: var(--text);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.news-item {
-  display: flex;
-  gap: 16px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--border);
-  transition: background .12s;
-  text-decoration: none;
-  color: inherit;
-}
-.news-item:last-child { border-bottom: none; }
-.news-item:hover { background: var(--surface2); }
-.news-num {
-  font-family: 'Sora', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--border);
-  min-width: 20px;
-  padding-top: 3px;
-}
-.news-content { flex: 1; min-width: 0; }
-.news-headline {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--text);
-  margin-bottom: 5px;
-}
-.news-summary {
-  font-size: 12.5px;
-  color: var(--text-muted);
-  line-height: 1.55;
-  margin-bottom: 7px;
-}
-.news-meta {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.news-tag {
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-}
-.news-source {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.news-arrow {
-  font-size: 14px;
-  color: var(--border);
-  padding-top: 2px;
-  flex-shrink: 0;
-  transition: color .12s;
-}
-.news-item:hover .news-arrow { color: var(--text); }
-.news-footer {
-  padding: 10px 18px;
+  padding: 12px 18px;
   border-top: 1px solid var(--border);
   background: var(--surface2);
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-size: 12px;
-  color: var(--text-muted);
 }
-.news-error {
-  padding: 32px 24px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 13px;
-}
-.news-error button {
-  margin-top: 10px;
-  padding: 7px 16px;
-  border: 1px solid var(--border);
-  background: transparent;
+.tip-counter { font-size: 12px; color: var(--text-muted); }
+.tip-next {
+  padding: 6px 16px;
+  border: 1.5px solid var(--border);
   border-radius: 7px;
+  background: transparent;
   font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
   cursor: pointer;
-  color: var(--text-muted);
+  transition: all .15s;
 }
-
+.tip-next:hover { background: var(--text); color: var(--surface); border-color: var(--text); }
 @media (max-width: 600px) {
-  .news-section { padding: 0 16px; margin-bottom: 40px; }
-  .news-controls { padding: 10px 14px; }
-  .news-filter { font-size: 11px; padding: 4px 10px; }
-  .news-item { padding: 14px; gap: 10px; }
-  .news-headline { font-size: 13px; }
-  .news-summary { font-size: 12px; }
+  .tip-section { padding: 0 16px; margin-bottom: 40px; }
+  .tip-body { gap: 12px; padding: 16px; }
+  .tip-icon { font-size: 28px; }
+  .tip-title { font-size: 15px; }
+  .tip-command { font-size: 11.5px; }
 }
 </style>
 
 <script>
+const TIPS = [
+  { cat:'Windows Shortcuts', icon:'⌨️', title:'Open Run Dialog Fast', text:'Press Win + R to instantly open the Run dialog — great for launching tools like msconfig, regedit, services.msc, or mmc without navigating menus.', cmd:'Win + R → msconfig' },
+  { cat:'CMD Commands', icon:'💻', title:'Check IP Configuration', text:'Use ipconfig /all to see full network details including IP address, subnet mask, default gateway, and MAC address. Essential first step in any network troubleshooting.', cmd:'ipconfig /all' },
+  { cat:'PowerShell', icon:'🔵', title:'Find Large Files Quickly', text:'Use PowerShell to locate files taking up the most disk space. Great when a drive fills up unexpectedly and you need to find the culprit fast.', cmd:"Get-ChildItem C:\ -Recurse -ErrorAction SilentlyContinue | Sort-Object Length -Descending | Select-Object -First 10 FullName, Length" },
+  { cat:'Network Troubleshooting', icon:'🌐', title:'Test DNS Resolution', text:'nslookup lets you test whether a hostname resolves correctly to an IP. If it fails, the issue is DNS; if it works but browsing fails, the problem is elsewhere.', cmd:'nslookup google.com' },
+  { cat:'Security Basics', icon:'🔒', title:'Check Open Ports', text:'Use netstat to see which ports are listening on a machine. The -ano flags show all connections, listening ports, and the PID of the owning process.', cmd:'netstat -ano | findstr LISTENING' },
+  { cat:'Windows Admin', icon:'🛠️', title:'Force Group Policy Update', text:'After making changes in Group Policy, run gpupdate /force to immediately apply them without waiting for the next automatic refresh cycle (default 90 min).', cmd:'gpupdate /force' },
+  { cat:'Disk & Storage', icon:'💾', title:'Check Disk Health', text:'SMART data from your drives can reveal early warning signs of failure. In PowerShell, Get-PhysicalDisk shows health status for all connected storage devices.', cmd:'Get-PhysicalDisk | Select FriendlyName, HealthStatus, OperationalStatus' },
+  { cat:'Active Directory', icon:'👥', title:'Find a User in AD Quickly', text:'Use dsquery to search Active Directory from the command line — no need to open ADUC. Useful when you need to verify an account exists or find its DN.', cmd:'dsquery user -name "John*"' },
+  { cat:'Remote Support', icon:'🖥️', title:'Quick Remote Desktop', text:'Launch Remote Desktop Connection directly from Run with the target hostname pre-filled. Saves time compared to opening the app and typing the hostname manually.', cmd:'Win + R → mstsc /v:HOSTNAME' },
+  { cat:'PowerShell', icon:'🔵', title:'List All Running Services', text:'Get-Service shows every service and its state. Pipe to Where-Object to filter for only running or stopped services — great for troubleshooting startup issues.', cmd:"Get-Service | Where-Object {\$_.Status -eq 'Running'}" },
+  { cat:'Event Logs', icon:'📋', title:'View Recent System Errors', text:'The Event Viewer is powerful but slow to open. Use this PowerShell one-liner to instantly pull the last 20 System errors directly in the terminal.', cmd:"Get-EventLog -LogName System -EntryType Error -Newest 20" },
+  { cat:'Network Troubleshooting', icon:'🌐', title:'Trace Network Path', text:'tracert shows every hop between your machine and a destination. Use it when ping works but a specific service is unreachable — helps pinpoint where packets are dropping.', cmd:'tracert 8.8.8.8' },
+  { cat:'Windows Shortcuts', icon:'⌨️', title:'Lock Your Screen Instantly', text:'Always lock your computer when stepping away from your desk — especially in a corporate environment. Win + L is the fastest way to do it, no mouse needed.', cmd:'Win + L' },
+  { cat:'Security Basics', icon:'🔒', title:'Flush DNS Cache', text:'Stale DNS cache entries can cause website loading failures or redirect to outdated IPs. Flushing the cache forces Windows to do fresh DNS lookups.', cmd:'ipconfig /flushdns' },
+  { cat:'Disk & Storage', icon:'💾', title:'Check Disk for Errors', text:'chkdsk scans a drive for file system errors and bad sectors. The /f flag fixes errors, and /r locates bad sectors. Always run on unmounted or rebooted volumes.', cmd:'chkdsk C: /f /r' },
+  { cat:'Remote Support', icon:'🖥️', title:'Enable PSRemoting for Remote Mgmt', text:'PowerShell remoting lets you run commands on remote machines. Enable it with one command — useful for managing multiple machines without physically touching each one.', cmd:'Enable-PSRemoting -Force' },
+  { cat:'CMD Commands', icon:'💻', title:'View ARP Table', text:'The ARP table maps IP addresses to MAC addresses on your local network. Use arp -a to see current mappings — useful for identifying devices or detecting ARP spoofing.', cmd:'arp -a' },
+  { cat:'Active Directory', icon:'👥', title:'Reset a User Password in AD', text:'You can reset AD passwords from the command line with net user — no need to open ADUC. The /domain flag targets the domain controller instead of the local machine.', cmd:'net user USERNAME NewP@ss123 /domain' },
+  { cat:'Security Basics', icon:'🔒', title:'Audit Local Admin Accounts', text:'Know who has local admin rights on a machine. This net localgroup command lists all members of the local Administrators group — key info during a security audit.', cmd:'net localgroup administrators' },
+  { cat:'PowerShell', icon:'🔵', title:'Get System Uptime', text:"PowerShell can calculate exactly how long a system has been running since last boot — useful for investigating whether a patch has been applied or a machine hasn't rebooted in months.", cmd:"(Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime" },
+  { cat:'Network Troubleshooting', icon:'🌐', title:'Test a Specific Port', text:'Use Test-NetConnection to check if a specific port is open on a remote host. Much more informative than ping alone — tells you if a firewall is blocking traffic.', cmd:'Test-NetConnection -ComputerName google.com -Port 443' },
+  { cat:'Windows Admin', icon:'🛠️', title:'Restart a Service Remotely', text:'Restart a Windows service on a remote machine without RDP. Combine with -ComputerName to manage services across your network from a single terminal window.', cmd:'Restart-Service -Name Spooler -ComputerName PCNAME' },
+  { cat:'CMD Commands', icon:'💻', title:'See Who Is Logged In', text:'query user (or quser) shows all currently logged-on users, their session ID, state, and idle time. Very useful on RDS servers or shared workstations.', cmd:'query user' },
+  { cat:'Security Basics', icon:'🔒', title:'Check Installed Software', text:'Get-ItemProperty gives you a full list of installed applications from the registry — useful for auditing unlicensed software or checking if a specific tool is installed.', cmd:"Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select DisplayName, DisplayVersion" },
+  { cat:'Active Directory', icon:'👥', title:'List All Computers in a Domain', text:'Use net view /domain to see all computers currently registered in the domain. Great for quickly getting an inventory of machines visible on the network.', cmd:'net view /domain:DOMAINNAME' },
+  { cat:'Windows Shortcuts', icon:'⌨️', title:'Open Task Manager Directly', text:'Ctrl + Shift + Esc opens Task Manager immediately — skipping the Ctrl+Alt+Del screen. Fastest way to kill a frozen process or check CPU/memory usage.', cmd:'Ctrl + Shift + Esc' },
+  { cat:'Disk & Storage', icon:'💾', title:'List Disk Partitions', text:'diskpart is the command-line disk manager. The list disk and list volume commands show all drives and partitions — useful during OS installs or disk troubleshooting.', cmd:'diskpart → list disk → list volume' },
+  { cat:'Remote Support', icon:'🖥️', title:'Copy Files to Remote Machine', text:'Copy-Item with -ToSession moves files to a remote machine over PowerShell remoting. No shared drives needed — great for deploying scripts or config files remotely.', cmd:"Copy-Item file.txt -Destination C:\Temp\ -ToSession (New-PSSession -ComputerName PCNAME)" },
+  { cat:'PowerShell', icon:'🔵', title:'Export Command Output to CSV', text:'Pipe almost any PowerShell command to Export-Csv to save results as a spreadsheet. Perfect for generating reports on users, services, or installed software.', cmd:"Get-Service | Export-Csv -Path C:\services.csv -NoTypeInformation" },
+  { cat:'Security Basics', icon:'🔒', title:'Scan for Malware with Defender', text:"Windows Defender's command-line tool can run a full scan without opening the UI. Use -Scan -ScanType 2 for a full scan, or ScanType 1 for a quick scan.", cmd:'Start-MpScan -ScanType FullScan' },
+];
 
-// RSS feeds via rss2json.com (free, no key, CORS-enabled)
-const FEEDS = {
-  all: [
-    'https://feeds.feedburner.com/TheHackersNews',
-    'https://www.bleepingcomputer.com/feed/'
-  ],
-  security: [
-    'https://feeds.feedburner.com/TheHackersNews',
-    'https://krebsonsecurity.com/feed/'
-  ],
-  windows: [
-    'https://www.bleepingcomputer.com/feed/',
-    'https://techcommunity.microsoft.com/plugins/custom/microsoft/o365/custom-blog-rss?tid=o365&board=Windows10&size=10'
-  ],
-  certs: [
-    'https://www.bleepingcomputer.com/feed/',
-    'https://feeds.feedburner.com/TheHackersNews'
-  ]
-};
+let tipIndex = (new Date().getDate() + new Date().getMonth()) % TIPS.length;
 
-let activeKey = 'all';
-let isLoading = false;
-
-document.querySelectorAll('.news-filter').forEach(btn => {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('.news-filter').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    activeKey = this.dataset.key;
-    loadNews();
-  });
-});
-
-async function fetchFeed(rssUrl) {
-  const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=6`;
-  const res = await fetch(api);
-  if (!res.ok) throw new Error('Feed fetch failed');
-  const data = await res.json();
-  if (data.status !== 'ok') throw new Error(data.message || 'Feed error');
-  return data.items || [];
+function showTip(i) {
+  const t = TIPS[i];
+  document.getElementById('tipCategory').textContent = t.cat;
+  document.getElementById('tipIcon').textContent = t.icon;
+  document.getElementById('tipTitle').textContent = t.title;
+  document.getElementById('tipText').textContent = t.text;
+  const cmdEl = document.getElementById('tipCommand');
+  if (t.cmd) { cmdEl.textContent = t.cmd; cmdEl.style.display = 'block'; }
+  else cmdEl.style.display = 'none';
+  document.getElementById('tipCounter').textContent = `Tip ${i + 1} of ${TIPS.length}`;
 }
 
-function stripHtml(html) {
-  const d = document.createElement('div');
-  d.innerHTML = html || '';
-  return d.textContent || d.innerText || '';
+function nextTip() {
+  tipIndex = (tipIndex + 1) % TIPS.length;
+  showTip(tipIndex);
 }
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const h = Math.floor(diff / 3600000);
-  if (h < 1) return 'just now';
-  if (h < 24) return h + 'h ago';
-  return Math.floor(h / 24) + 'd ago';
-}
-
-function tagFromTitle(title) {
-  const t = title.toLowerCase();
-  if (/ransomware|malware|phish|breach|hack|exploit|vuln|cve|attack|zero.?day/.test(t)) return 'Threat';
-  if (/window|microsoft|active.?dir|azure|office/.test(t)) return 'Windows';
-  if (/network|firewall|vpn|router|dns|proxy/.test(t)) return 'Network';
-  if (/cloud|aws|azure|gcp/.test(t)) return 'Cloud';
-  if (/certif|comptia|cissp|career|job|exam/.test(t)) return 'Career';
-  if (/ai|machine.?learn|chatgpt|llm/.test(t)) return 'AI';
-  return 'Security';
-}
-
-async function loadNews() {
-  if (isLoading) return;
-  isLoading = true;
-
-  const feed = document.getElementById('newsFeed');
-  const refresh = document.getElementById('newsRefresh');
-  const footer = document.getElementById('newsFooter');
-  const icon = document.getElementById('refreshIcon');
-  const label = document.querySelector('.news-filter.active')?.textContent || 'IT';
-
-  refresh.disabled = true;
-  icon.style.animation = 'spin .7s linear infinite';
-  feed.innerHTML = `<div class="news-loading"><div class="news-spinner"></div>Loading ${escHtml(label)} news…</div>`;
-
-  try {
-    const urls = FEEDS[activeKey] || FEEDS.all;
-    // Fetch both feeds in parallel, take first that works
-    let items = [];
-    const results = await Promise.allSettled(urls.map(fetchFeed));
-    for (const r of results) {
-      if (r.status === 'fulfilled') items = items.concat(r.value);
-    }
-    if (!items.length) throw new Error('No articles loaded — feeds may be temporarily unavailable');
-
-    // Deduplicate by title, sort by date, take top 8
-    const seen = new Set();
-    items = items
-      .filter(i => { const k = i.title?.slice(0,50); if (seen.has(k)) return false; seen.add(k); return true; })
-      .sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate))
-      .slice(0, 8);
-
-    feed.innerHTML = items.map((item, i) => {
-      const title = escHtml(item.title || 'Untitled');
-      const desc = escHtml(stripHtml(item.description).slice(0, 140).trim() + '…');
-      const tag = tagFromTitle(item.title || '');
-      const source = escHtml(item.author || new URL(item.link).hostname.replace('www.',''));
-      const when = timeAgo(item.pubDate);
-      const url = item.link || '#';
-      return `<a class="news-item" href="${escHtml(url)}" target="_blank" rel="noopener">
-        <div class="news-num">${String(i+1).padStart(2,'0')}</div>
-        <div class="news-content">
-          <div class="news-headline">${title}</div>
-          <div class="news-summary">${desc}</div>
-          <div class="news-meta">
-            <span class="news-tag">${tag}</span>
-            <span class="news-source">${source} · ${when}</span>
-          </div>
-        </div>
-        <div class="news-arrow">↗</div>
-      </a>`;
-    }).join('');
-
-    footer.style.display = 'flex';
-    document.getElementById('newsTimestamp').textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
-  } catch(err) {
-    feed.innerHTML = `<div class="news-error">
-      <div>⚠️ ${escHtml(err.message)}</div>
-      <button onclick="loadNews()">Try again</button>
-    </div>`;
-  } finally {
-    isLoading = false;
-    refresh.disabled = false;
-    icon.style.animation = '';
-  }
-}
-
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+showTip(tipIndex);
 </script>
 
 <script>
