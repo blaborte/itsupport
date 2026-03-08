@@ -502,7 +502,7 @@
     </div>
   </div>
   <div class="header-right">
-    <button class="btn-ghost" id="homeBtn">⌂ Home</button>
+    <a href="index.html" class="btn-ghost">🏠 Home</a>
     <button class="btn-ghost" id="resetBtn">↺ Reset</button>
   </div>
 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
@@ -1748,7 +1748,7 @@ function updateSessionStat(text) {
 }
 
 // ===================== INIT =====================
-document.getElementById('homeBtn').addEventListener('click', goHome);
+// homeBtn is now a link to index.html
 document.getElementById('resetBtn').addEventListener('click', () => {
   if (state.category) restartTree(); else goHome();
 });
