@@ -260,6 +260,28 @@
 }
 .theme-toggle:hover{background:var(--border);}
 
+
+@media (max-width: 480px) {
+  header { padding: 12px 16px; }
+  .hero { margin-top: 24px; padding: 0 16px; }
+  .hero-title { font-size: 28px; }
+  .hero-sub { font-size: 14px; margin-bottom: 32px; }
+  .tools-section, .stats-bar { padding-left: 16px; padding-right: 16px; }
+  .tools-grid { grid-template-columns: 1fr; }
+  .stats-bar { gap: 8px; }
+  .stat-pill { padding: 8px 12px; font-size: 12px; }
+  .tool-name { font-size: 16px; }
+  .tool-desc { font-size: 13px; }
+}
+
+
+@media (max-width: 480px) {
+  .logo-name { font-size: 13px; }
+  .logo-sep, .logo-page { display: none; }
+  .back-btn, .btn-ghost { padding: 6px 10px; font-size: 12px; }
+  .theme-toggle { width: 32px; height: 32px; font-size: 14px; }
+}
+
 </style>
 </head>
 <body>
@@ -386,6 +408,348 @@
   </div>
 </div>
 
+<!-- LIVE NEWS SECTION -->
+<div class="news-section" id="newsSection">
+  <div class="section-label" style="padding:0 32px;max-width:860px;margin:0 auto 16px;">🗞️ IT & Cybersecurity News</div>
+  <div class="news-wrap">
+    <div class="news-controls">
+      <div class="news-filters" id="newsFilters">
+        <button class="news-filter active" data-topic="IT support and helpdesk technology news">All IT</button>
+        <button class="news-filter" data-topic="cybersecurity threats vulnerabilities 2025">Cybersecurity</button>
+        <button class="news-filter" data-topic="Windows Active Directory networking enterprise IT news">Windows & Networking</button>
+        <button class="news-filter" data-topic="CompTIA certifications IT career news">Certifications</button>
+      </div>
+      <button class="news-refresh" id="newsRefresh" onclick="loadNews()">
+        <span id="refreshIcon">↻</span> Refresh
+      </button>
+    </div>
+    <div class="news-feed" id="newsFeed">
+      <div class="news-placeholder">
+        <div class="news-placeholder-icon">📡</div>
+        <div class="news-placeholder-text">Click a topic to load the latest news</div>
+        <button class="news-load-btn" onclick="loadNews()">Load IT News</button>
+      </div>
+    </div>
+    <div class="news-footer" id="newsFooter" style="display:none">
+      <span id="newsTimestamp"></span>
+      <span style="color:var(--border)">·</span>
+      <span style="color:var(--text-muted);font-size:12px">Powered by Claude AI</span>
+    </div>
+  </div>
+</div>
+
+<style>
+.news-section {
+  max-width: 860px;
+  margin: 0 auto 64px;
+  padding: 0 32px;
+}
+.news-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.news-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.news-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.news-filter {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.news-filter:hover { background: var(--surface); color: var(--text); }
+.news-filter.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+.news-refresh {
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.news-refresh:hover { background: var(--surface2); color: var(--text); }
+.news-refresh:disabled { opacity: .5; cursor: not-allowed; }
+.news-feed { min-height: 120px; }
+.news-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  gap: 10px;
+  text-align: center;
+}
+.news-placeholder-icon { font-size: 32px; }
+.news-placeholder-text { font-size: 14px; color: var(--text-muted); }
+.news-load-btn {
+  margin-top: 6px;
+  padding: 8px 20px;
+  background: var(--text);
+  color: var(--surface);
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.news-load-btn:hover { opacity: .85; }
+.news-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.news-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.news-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+  text-decoration: none;
+  color: inherit;
+}
+.news-item:last-child { border-bottom: none; }
+.news-item:hover { background: var(--surface2); }
+.news-num {
+  font-family: 'Sora', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--border);
+  min-width: 20px;
+  padding-top: 3px;
+}
+.news-content { flex: 1; min-width: 0; }
+.news-headline {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.news-summary {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 7px;
+}
+.news-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.news-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.news-source {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.news-arrow {
+  font-size: 14px;
+  color: var(--border);
+  padding-top: 2px;
+  flex-shrink: 0;
+  transition: color .12s;
+}
+.news-item:hover .news-arrow { color: var(--text); }
+.news-footer {
+  padding: 10px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.news-error {
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.news-error button {
+  margin-top: 10px;
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+  .news-section { padding: 0 16px; margin-bottom: 40px; }
+  .news-controls { padding: 10px 14px; }
+  .news-filter { font-size: 11px; padding: 4px 10px; }
+  .news-item { padding: 14px; gap: 10px; }
+  .news-headline { font-size: 13px; }
+  .news-summary { font-size: 12px; }
+}
+</style>
+
+<script>
+let activeTopic = 'IT support and helpdesk technology news';
+let isLoading = false;
+
+document.querySelectorAll('.news-filter').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.news-filter').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    activeTopic = this.dataset.topic;
+    loadNews();
+  });
+});
+
+async function loadNews() {
+  if (isLoading) return;
+  isLoading = true;
+
+  const feed = document.getElementById('newsFeed');
+  const refresh = document.getElementById('newsRefresh');
+  const footer = document.getElementById('newsFooter');
+  const icon = document.getElementById('refreshIcon');
+
+  refresh.disabled = true;
+  icon.style.animation = 'spin .7s linear infinite';
+  icon.style.display = 'inline-block';
+
+  feed.innerHTML = `<div class="news-loading"><div class="news-spinner"></div>Fetching latest ${activeTopic.split(' ').slice(0,3).join(' ')} news…</div>`;
+
+  const prompt = `You are a tech news curator. Search the web for the 6 most recent and relevant news stories about: "${activeTopic}".
+
+For each story return ONLY valid JSON (no markdown, no backticks, no commentary):
+{
+  "articles": [
+    {
+      "headline": "short punchy headline under 90 chars",
+      "summary": "2-sentence plain-English summary of why this matters to IT professionals",
+      "tag": "one category word like: Security | Windows | Networking | Cloud | Career | Hardware | AI | Breach",
+      "source": "Publication name",
+      "url": "full URL if available, else #"
+    }
+  ]
+}
+
+Return ONLY the JSON object. Today's date is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+
+    // Extract text from response (may come after tool use blocks)
+    const textBlock = data.content && data.content.find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No text in response');
+
+    let raw = textBlock.text.trim();
+    // Strip any markdown code fences
+    raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    // Extract JSON object if there's surrounding text
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON found');
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    const articles = parsed.articles || [];
+
+    if (!articles.length) throw new Error('No articles returned');
+
+    feed.innerHTML = articles.map((a, i) => `
+      <a class="news-item" href="${a.url && a.url !== '#' ? a.url : '#'}" ${a.url && a.url !== '#' ? 'target="_blank" rel="noopener"' : ''}>
+        <div class="news-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="news-content">
+          <div class="news-headline">${escHtml(a.headline)}</div>
+          <div class="news-summary">${escHtml(a.summary)}</div>
+          <div class="news-meta">
+            <span class="news-tag">${escHtml(a.tag)}</span>
+            <span class="news-source">${escHtml(a.source)}</span>
+          </div>
+        </div>
+        <div class="news-arrow">↗</div>
+      </a>`).join('');
+
+    footer.style.display = 'flex';
+    document.getElementById('newsTimestamp').textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+  } catch(err) {
+    feed.innerHTML = `<div class="news-error">
+      <div>⚠️ Couldn't load news right now.</div>
+      <div style="font-size:11px;margin-top:4px;opacity:.6">${escHtml(err.message)}</div>
+      <button onclick="loadNews()">Try again</button>
+    </div>`;
+  } finally {
+    isLoading = false;
+    refresh.disabled = false;
+    icon.style.animation = '';
+  }
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
 
 <script>
 (function(){
