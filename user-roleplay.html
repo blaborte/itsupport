@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Roleplay — IT Practice Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F5F4F9; --surface: #fff; --surface2: #EEEDF4;
+    --border: #DAD8E8; --text: #1A1820; --muted: #6E6C80;
+    --accent: #7B3FA0; --accent-light: #F3EBF9;
+    --green: #2E7D52; --green-light: #E8F5EE;
+    --radius: 10px; --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--text); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; }
+  .logo-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; }
+  .logo-sep { color: var(--border); margin: 0 4px; }
+  .logo-page { font-size: 14px; color: var(--muted); }
+  .back-btn { padding: 7px 14px; border: 1px solid var(--border); background: transparent; border-radius: 7px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .back-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .app { flex: 1; max-width: 800px; margin: 0 auto; width: 100%; padding: 32px 24px; display: flex; flex-direction: column; }
+
+  /* HOME */
+  .home-title { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 8px; }
+  .home-sub { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+  .scenarios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .scenario-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 22px 20px; cursor: pointer; transition: all 0.18s; box-shadow: var(--shadow); }
+  .scenario-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: var(--accent); }
+  .sc-persona { font-size: 28px; margin-bottom: 10px; }
+  .sc-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .sc-type { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .sc-diff { display: inline-flex; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .diff-easy { background: var(--green-light); color: var(--green); }
+  .diff-med { background: #FEF3E2; color: #B85C2A; }
+  .diff-hard { background: var(--accent-light); color: var(--accent); }
+
+  /* CHAT */
+  .chat-wrap { flex: 1; display: flex; flex-direction: column; animation: fadeUp 0.25s ease; }
+  .chat-header { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); }
+  .chat-avatar { font-size: 32px; }
+  .chat-name { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; }
+  .chat-meta { font-size: 12px; color: var(--muted); }
+  .chat-exit { margin-left: auto; padding: 6px 14px; border: 1px solid var(--border); background: transparent; border-radius: 7px; font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .chat-exit:hover { background: var(--surface2); }
+
+  .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; min-height: 300px; max-height: 400px; padding: 4px; }
+  .msg { display: flex; gap: 10px; align-items: flex-start; animation: fadeUp 0.2s ease; }
+  .msg.user-msg { flex-direction: row-reverse; }
+  .msg-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: var(--surface2); border: 1px solid var(--border); }
+  .msg-bubble { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.55; }
+  .msg.npc-msg .msg-bubble { background: var(--surface); border: 1px solid var(--border); border-radius: 4px 12px 12px 12px; }
+  .msg.user-msg .msg-bubble { background: var(--text); color: #fff; border-radius: 12px 4px 12px 12px; }
+
+  .response-options { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .resp-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .resp-opts { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+  .resp-opt { padding: 11px 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; font-size: 13.5px; cursor: pointer; transition: all 0.15s; line-height: 1.45; }
+  .resp-opt:hover { border-color: var(--accent); background: var(--accent-light); }
+  .resp-opt.selected { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .score-bar { display: flex; gap: 16px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; margin-bottom: 14px; }
+  .score-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .score-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .feedback-inline { font-size: 12.5px; padding: 10px 14px; border-radius: 8px; margin-top: 8px; line-height: 1.5; }
+  .fb-good { background: var(--green-light); color: var(--green); }
+  .fb-bad { background: #FEF3E2; color: #B85C2A; }
+
+  .end-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; text-align: center; box-shadow: var(--shadow); margin-top: 16px; }
+  .end-title { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .skill-bars { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; text-align: left; }
+  .skill-row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .skill-name { width: 110px; flex-shrink: 0; color: var(--muted); }
+  .skill-track { flex: 1; background: var(--surface2); border-radius: 4px; height: 7px; overflow: hidden; }
+  .skill-fill { height: 7px; border-radius: 4px; background: var(--accent); transition: width 0.8s ease; }
+  .btn-primary { padding: 11px 24px; background: var(--text); color: #fff; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; margin: 4px; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-outline { padding: 11px 20px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; cursor: pointer; transition: all 0.15s; margin: 4px; }
+  .btn-outline:hover { background: var(--surface2); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">IT</div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span class="logo-name">IT Practice Hub</span>
+      <span class="logo-sep">›</span>
+      <span class="logo-page">User Roleplay</span>
+    </div>
+  </div>
+  <a href="index.html" class="back-btn">← Back to Hub</a>
+</header>
+
+<div class="app" id="app"></div>
+
+<script>
+const scenarios = [
+  {
+    id: "confused-beginner",
+    name: "Maria, 58 — Finance",
+    avatar: "👵",
+    type: "Confused, non-technical user",
+    difficulty: "easy",
+    issue: "Printer not working",
+    opener: "Hello? Is this IT? My printer is making a noise and nothing is coming out. I really don't understand these machines. I've pressed the button many times.",
+    exchanges: [
+      {
+        prompt: "How do you open the conversation?",
+        options: [
+          { text: "Hi Maria! No worries at all — I'll help you get this sorted. Can you tell me, is there a small light flashing on the printer right now?", score: { empathy: 2, clarity: 2, technical: 1 }, fb: "good", comment: "Perfect opener — warm, reassuring, and asks a simple concrete question she can answer." },
+          { text: "What's your printer model? I need that to look up the error codes.", score: { empathy: 0, clarity: 1, technical: 2 }, fb: "bad", comment: "Starting with technical jargon and model requests is overwhelming for a non-technical user. Lead with empathy first." },
+          { text: "Have you tried turning it off and on again?", score: { empathy: 0, clarity: 1, technical: 1 }, fb: "bad", comment: "While valid troubleshooting, leading with this cliché without acknowledging her frustration feels dismissive." },
+          { text: "Please log a ticket in the system and I'll get to it.", score: { empathy: 0, clarity: 0, technical: 0 }, fb: "bad", comment: "Never redirect a confused, frustrated user to a portal without helping them first, especially if they called you directly." }
+        ],
+        npcFollow: "There's an orange light, I think? And there's a paper sticking out a little bit."
+      },
+      {
+        prompt: "The orange light and paper sticking out suggests a jam. What do you say?",
+        options: [
+          { text: "That sounds like a paper jam! There should be a door on the front or side of the printer — can you open it gently and pull out any paper you see?", score: { empathy: 1, clarity: 2, technical: 2 }, fb: "good", comment: "Clear, friendly, actionable instruction at the right level. You translated the technical into something she can do." },
+          { text: "It's a paper jam. Clear it.", score: { empathy: 0, clarity: 0, technical: 1 }, fb: "bad", comment: "Too terse. For a non-technical user, this gives no guidance on how to clear it. Always explain the steps." },
+          { text: "Can you see if there's a jam code shown on the display? Like E4 or something?", score: { empathy: 0, clarity: 1, technical: 1 }, fb: "bad", comment: "You're asking her to interpret error codes — too technical for this user type. Keep it simple and visual." },
+          { text: "Don't touch the printer — I'll send someone to look at it.", score: { empathy: 1, clarity: 1, technical: 0 }, fb: "bad", comment: "Dispatching is sometimes right but a paper jam is a self-service fix. Walking her through it builds her confidence for next time." }
+        ],
+        npcFollow: "Oh! I see some paper crumpled in there. I got it out. The light went away! Does that mean it's fixed?"
+      },
+      {
+        prompt: "She cleared the jam. How do you close the interaction?",
+        options: [
+          { text: "You fixed it! Try printing again. If it works, great — and now you know how to handle a jam next time. Let me know if it happens again!", score: { empathy: 2, clarity: 2, technical: 1 }, fb: "good", comment: "Empowers the user, confirms resolution, and leaves the door open. This is excellent closing technique." },
+          { text: "Okay, just close the ticket.", score: { empathy: 0, clarity: 0, technical: 0 }, fb: "bad", comment: "Abrupt and transactional. Always confirm resolution with the user before closing." },
+          { text: "Great, your ticket is now resolved.", score: { empathy: 0, clarity: 1, technical: 0 }, fb: "bad", comment: "Better but still cold. A warmer confirmation and encouraging word goes a long way." },
+          { text: "Yes, the paper jam is cleared. Try printing your document and let me know if it prints successfully!", score: { empathy: 1, clarity: 2, technical: 1 }, fb: "good", comment: "Solid close — clear, confirms next step, invites follow-up." }
+        ],
+        npcFollow: "Oh wonderful, it printed! Thank you so much, you're so patient!"
+      }
+    ]
+  },
+  {
+    id: "impatient-exec",
+    name: "Director Chen — C-Suite",
+    avatar: "👔",
+    type: "Impatient executive, limited time",
+    difficulty: "hard",
+    issue: "VPN not connecting, needs access now",
+    opener: "I need this VPN fixed. I'm about to join a board call and it won't connect. I don't have time for a long process.",
+    exchanges: [
+      {
+        prompt: "How do you open under this pressure?",
+        options: [
+          { text: "Understood — let's get you connected fast. Can you tell me what error message you're seeing, in one word if possible?", score: { empathy: 2, clarity: 2, technical: 2 }, fb: "good", comment: "Acknowledges urgency immediately, takes charge, and asks a focused question that won't waste their time." },
+          { text: "I understand your frustration, but I'll need you to walk me through what happened step by step.", score: { empathy: 1, clarity: 0, technical: 1 }, fb: "bad", comment: "Asking an executive to 'walk you through it step by step' signals you're about to make this long. They'll disengage fast." },
+          { text: "Can I get your employee ID and department first for verification?", score: { empathy: 0, clarity: 0, technical: 0 }, fb: "bad", comment: "You already know who this is. Asking for ID verification from a Director in a board-call crisis is tone-deaf." },
+          { text: "Please restart your computer and try again.", score: { empathy: 0, clarity: 1, technical: 1 }, fb: "bad", comment: "No empathy, no acknowledgment of urgency, and a reboot during a meeting crisis is not the move." }
+        ],
+        npcFollow: "It says 'Authentication failed'. This is ridiculous. My password was just reset yesterday."
+      },
+      {
+        prompt: "Authentication failed after a password reset — you know this is likely a credentials sync issue. What's your response?",
+        options: [
+          { text: "Got it — password resets sometimes take a moment to sync with VPN. Try your new password. If not, I can push a manual auth reset on my end in 30 seconds.", score: { empathy: 1, clarity: 2, technical: 2 }, fb: "good", comment: "Explains the cause briefly, gives them something to try immediately, and offers a fast backup. Executive-level communication." },
+          { text: "The VPN client may need to be updated. Can you check what version you're on?", score: { empathy: 0, clarity: 1, technical: 1 }, fb: "bad", comment: "This is almost certainly not the cause given the recent password reset. Asking them to check software versions wastes precious minutes." },
+          { text: "I need to escalate this to the VPN team — it may take an hour.", score: { empathy: 0, clarity: 1, technical: 0 }, fb: "bad", comment: "Do not tell an executive with a board call in minutes that something will take an hour without trying the obvious fix first." },
+          { text: "Try your new password instead of your old one.", score: { empathy: 0, clarity: 2, technical: 1 }, fb: "bad", comment: "Correct direction but dismissive in tone. The brief explanation helps them understand the why, which builds confidence." }
+        ],
+        npcFollow: "New password worked. I'm in. Fine. Thanks."
+      },
+      {
+        prompt: "Issue resolved — brief close for a busy executive?",
+        options: [
+          { text: "Great — you're all set. Good luck with the call.", score: { empathy: 2, clarity: 2, technical: 1 }, fb: "good", comment: "Perfect. Brief, warm, gets out of their way. Executives don't want long closings." },
+          { text: "I'll document this and send you a full report of what happened and why.", score: { empathy: 0, clarity: 1, technical: 1 }, fb: "bad", comment: "Nobody asked for a report. Sending unsolicited documentation to a C-suite executive adds noise to their inbox." },
+          { text: "Before you go — can you rate your support experience on a scale of 1-5?", score: { empathy: 0, clarity: 0, technical: 0 }, fb: "bad", comment: "They're literally about to join a board call. Asking for a rating right now is completely inappropriate timing." },
+          { text: "Glad that worked! Let me know if it happens again — I've made a note for next time.", score: { empathy: 1, clarity: 2, technical: 1 }, fb: "good", comment: "Good close — reassuring and brief. Noting it for next time shows proactive service." }
+        ],
+        npcFollow: "Fine. Good."
+      }
+    ]
+  },
+  {
+    id: "anxious-user",
+    name: "Kevin, 32 — Marketing",
+    avatar: "😰",
+    type: "Anxious, worried about data loss",
+    difficulty: "med",
+    issue: "Accidentally deleted important files",
+    opener: "I think I messed up really bad. I deleted a whole folder of client files by accident and I can't undo it. These are from the last 3 months. Am I fired?",
+    exchanges: [
+      {
+        prompt: "He's panicking. How do you start?",
+        options: [
+          { text: "Hey, take a breath — this happens and we have recovery options. Don't do anything else on the computer for now so we don't overwrite the files. Let me check the Recycle Bin and our backup system.", score: { empathy: 2, clarity: 2, technical: 2 }, fb: "good", comment: "Immediately calms him, prevents further damage, and moves toward recovery. Excellent handling of an emotionally distressed user." },
+          { text: "When did this happen? I need exact time and file names.", score: { empathy: 0, clarity: 1, technical: 2 }, fb: "bad", comment: "Jumping straight to technical interrogation ignores that he's clearly in distress. Address the emotional state first, then gather details." },
+          { text: "Did you check the Recycle Bin?", score: { empathy: 0, clarity: 1, technical: 1 }, fb: "bad", comment: "Technically valid but cold. One small acknowledgment of his stress before technical questions would go a long way." },
+          { text: "I'll be honest — if the files are deleted it may be very hard to recover them.", score: { empathy: 0, clarity: 1, technical: 0 }, fb: "bad", comment: "Do not lead with worst-case scenarios before you've even looked. This increases panic and may not even be accurate." }
+        ],
+        npcFollow: "Okay okay. The Recycle Bin — it's empty. I might have emptied it by accident too. Oh no."
+      },
+      {
+        prompt: "Recycle Bin is empty. What do you tell him about next steps?",
+        options: [
+          { text: "That's okay — we have a few more options. First, if the files were in a shared drive or OneDrive, we can restore from version history. If not, our backup runs every night — so we likely have everything up to yesterday. Let me check now.", score: { empathy: 1, clarity: 2, technical: 2 }, fb: "good", comment: "Turns a scary situation into a solvable one. Explains options clearly without jargon and takes action." },
+          { text: "You should have backed them up yourself. Did you not read the IT policy?", score: { empathy: 0, clarity: 0, technical: 0 }, fb: "bad", comment: "Never shame a user during an incident, even if they made a mistake. This destroys trust and helps no one." },
+          { text: "I can try to recover them but I can't guarantee anything.", score: { empathy: 1, clarity: 1, technical: 1 }, fb: "bad", comment: "While honest, leading with uncertainty when you haven't checked backups yet creates unnecessary anxiety. Explore options first, set expectations second." },
+          { text: "Was this on a local drive or a network share?", score: { empathy: 0, clarity: 1, technical: 2 }, fb: "bad", comment: "Important question, but asked without any reassurance first. Kevin is still panicking — a line of empathy before the question helps." }
+        ],
+        npcFollow: "They were in the shared marketing drive. Does that mean they're recoverable?"
+      },
+      {
+        prompt: "Shared drive — almost certainly recoverable. How do you close this out?",
+        options: [
+          { text: "Yes! Shared drives have version history. I can see the folder right now and restore it. Give me 2 minutes and everything will be back. You're not fired — this is a recoverable situation and it happens.", score: { empathy: 2, clarity: 2, technical: 2 }, fb: "good", comment: "Perfect. You addressed his fear directly, gave him a timeframe, and handled both the technical and emotional components." },
+          { text: "I'll open a recovery ticket and someone will get back to you in 24 hours.", score: { empathy: 0, clarity: 1, technical: 0 }, fb: "bad", comment: "24 hours for a stressed user with recoverable files on a shared drive is completely unnecessary. Restore it now." },
+          { text: "Shared drives are backed up so you should be fine. I'll restore it later today.", score: { empathy: 1, clarity: 1, technical: 1 }, fb: "bad", comment: "Correct but 'later today' is vague and doesn't address his anxiety. Give him a specific timeframe and restore it promptly." },
+          { text: "Check with your manager what files are most important and let me know.", score: { empathy: 0, clarity: 0, technical: 0 }, fb: "bad", comment: "You can restore the whole folder — there's no reason to make him involve his manager in what should be a simple recovery." }
+        ],
+        npcFollow: "Oh thank god. Thank you so much. I was so scared."
+      }
+    ]
+  }
+];
+
+const state = { screen: 'home', scenario: null, exchangeIdx: 0, selected: null, revealed: false, messages: [], scores: { empathy: 0, clarity: 0, technical: 0 } };
+
+function startScenario(id) {
+  const sc = scenarios.find(s => s.id === id);
+  state.scenario = sc;
+  state.exchangeIdx = 0;
+  state.selected = null;
+  state.revealed = false;
+  state.scores = { empathy: 0, clarity: 0, technical: 0 };
+  state.messages = [{ role: 'npc', text: sc.opener }];
+  state.screen = 'chat';
+  render();
+}
+
+function selectResp(i) { if (state.revealed) return; state.selected = i; render(); }
+
+function submitResp() {
+  if (state.selected === null) return;
+  const ex = state.scenario.exchanges[state.exchangeIdx];
+  const opt = ex.options[state.selected];
+  state.messages.push({ role: 'user', text: opt.text });
+  Object.keys(opt.score).forEach(k => state.scores[k] = (state.scores[k]||0) + opt.score[k]);
+  state.revealed = true;
+  render();
+  // auto-advance NPC
+  setTimeout(() => {
+    if (state.revealed) {
+      state.messages.push({ role: 'npc', text: ex.npcFollow });
+      render();
+    }
+  }, 800);
+}
+
+function nextExchange() {
+  if (state.exchangeIdx + 1 >= state.scenario.exchanges.length) {
+    state.screen = 'end';
+  } else {
+    state.exchangeIdx++;
+    state.selected = null;
+    state.revealed = false;
+  }
+  render();
+}
+
+function goHome() { state.screen = 'home'; render(); }
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'home') app.innerHTML = renderHome();
+  else if (state.screen === 'chat') app.innerHTML = renderChat();
+  else app.innerHTML = renderEnd();
+  if (state.screen === 'chat') {
+    const cm = document.getElementById('chatMessages');
+    if (cm) cm.scrollTop = cm.scrollHeight;
+  }
+}
+
+function renderHome() {
+  return `<div style="animation:fadeUp 0.3s ease">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;margin-bottom:24px;box-shadow:var(--shadow);">
+      <div class="home-title">💬 User Roleplay</div>
+      <div class="home-sub">Practice communicating with simulated users — each with a different personality, patience level, and technical ability. Scored on empathy, clarity, and technical accuracy.</div>
+    </div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Choose a Scenario</div>
+    <div class="scenarios-grid">
+      ${scenarios.map(sc => `<div class="scenario-card" onclick="startScenario('${sc.id}')">
+        <div class="sc-persona">${sc.avatar}</div>
+        <div class="sc-name">${sc.name}</div>
+        <div class="sc-type">${sc.type}</div>
+        <div class="sc-diff diff-${sc.difficulty}">${sc.difficulty === 'easy' ? '🟢 Easy' : sc.difficulty === 'med' ? '🟡 Medium' : '🔴 Hard'}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderChat() {
+  const sc = state.scenario;
+  const ex = sc.exchanges[state.exchangeIdx];
+  const letters = ['A','B','C','D'];
+  const opt = state.selected !== null ? ex.options[state.selected] : null;
+  const maxScore = { empathy: 6, clarity: 6, technical: 6 };
+
+  return `<div class="chat-wrap">
+    <div class="score-bar">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-right:4px;">Score</span>
+      <div class="score-item"><span class="score-dot" style="background:#E74C3C"></span>Empathy: ${state.scores.empathy}</div>
+      <div class="score-item"><span class="score-dot" style="background:#3498DB"></span>Clarity: ${state.scores.clarity}</div>
+      <div class="score-item"><span class="score-dot" style="background:var(--accent)"></span>Technical: ${state.scores.technical}</div>
+    </div>
+    <div class="chat-header">
+      <div class="chat-avatar">${sc.avatar}</div>
+      <div>
+        <div class="chat-name">${sc.name}</div>
+        <div class="chat-meta">${sc.type} · ${sc.issue}</div>
+      </div>
+      <button class="chat-exit" onclick="goHome()">Exit</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      ${state.messages.map(m => `<div class="msg ${m.role === 'npc' ? 'npc-msg' : 'user-msg'}">
+        <div class="msg-avatar">${m.role === 'npc' ? sc.avatar : '🧑‍💻'}</div>
+        <div class="msg-bubble">${m.text}</div>
+      </div>`).join('')}
+    </div>
+    <div class="response-options">
+      <div class="resp-label">${ex.prompt}</div>
+      ${state.revealed && opt ? `<div class="feedback-inline ${opt.fb === 'good' ? 'fb-good' : 'fb-bad'}">${opt.fb === 'good' ? '✅' : '⚠️'} ${opt.comment}</div>` : ''}
+      <div class="resp-opts" style="margin-top:${state.revealed?'10px':'0'}">
+        ${ex.options.map((o,i) => `<div class="resp-opt ${state.selected===i?'selected':''}" onclick="${state.revealed?'':'selectResp('+i+')'}">
+          ${!state.revealed ? `<strong style="margin-right:8px;opacity:0.5">${letters[i]}</strong>` : ''}${o.text}
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        ${state.revealed
+          ? `<button class="btn-primary" onclick="nextExchange()">${state.exchangeIdx+1 >= sc.exchanges.length ? 'See Results' : 'Continue →'}</button>`
+          : `<button class="btn-primary" onclick="submitResp()" style="${state.selected===null?'opacity:0.4;cursor:default;':''}">Send Response</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderEnd() {
+  const sc = state.scenario;
+  const maxPossible = sc.exchanges.length * 2;
+  const total = state.scores.empathy + state.scores.clarity + state.scores.technical;
+  const maxTotal = maxPossible * 3;
+  const pct = Math.round((total / maxTotal) * 100);
+  const skills = [
+    { name: 'Empathy', val: Math.min(100, Math.round((state.scores.empathy / maxPossible) * 100)) },
+    { name: 'Clarity', val: Math.min(100, Math.round((state.scores.clarity / maxPossible) * 100)) },
+    { name: 'Technical', val: Math.min(100, Math.round((state.scores.technical / maxPossible) * 100)) }
+  ];
+  return `<div>
+    <div class="end-card">
+      <div class="end-title">Scenario Complete ${pct >= 75 ? '🏆' : pct >= 50 ? '👍' : '📚'}</div>
+      <div style="font-size:36px;font-family:'Sora',sans-serif;font-weight:700;letter-spacing:-1px;">${pct}%</div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:8px;">${sc.name} · ${sc.issue}</div>
+      <div class="skill-bars">
+        ${skills.map(s => `<div class="skill-row">
+          <div class="skill-name">${s.name}</div>
+          <div class="skill-track"><div class="skill-fill" style="width:${s.val}%"></div></div>
+          <div style="font-size:12px;font-weight:600;width:36px;text-align:right;">${s.val}%</div>
+        </div>`).join('')}
+      </div>
+      <div>
+        <button class="btn-primary" onclick="startScenario('${sc.id}')">Retry</button>
+        <button class="btn-outline" onclick="goHome()">← All Scenarios</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>

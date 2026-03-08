@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Line Trainer — IT Practice Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0D1117; --surface: #161B22; --surface2: #21262D;
+    --border: #30363D; --text: #E6EDF3; --muted: #7D8590;
+    --green: #3FB950; --cyan: #79C0FF; --yellow: #E3B341;
+    --purple: #BC8CFF; --red: #F85149; --orange: #FFA657;
+    --radius: 8px; --mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #000; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; }
+  .logo-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; }
+  .logo-sep { color: var(--border); margin: 0 4px; }
+  .logo-page { font-size: 14px; color: var(--muted); }
+  .back-btn { padding: 7px 14px; border: 1px solid var(--border); background: transparent; border-radius: 7px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .back-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .app { flex: 1; max-width: 900px; margin: 0 auto; width: 100%; padding: 28px 24px; display: flex; flex-direction: column; gap: 0; }
+
+  /* HOME */
+  .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .home-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 22px; cursor: pointer; transition: all 0.18s; }
+  .home-card:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(63,185,80,0.12); }
+  .hc-os { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .hc-title { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .hc-count { font-size: 12px; color: var(--muted); }
+  .hc-bar { height: 2px; border-radius: 2px; margin-top: 16px; }
+  .intro-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
+  .intro-title { font-family: 'Sora', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .intro-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .stats-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .stat-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 14px; font-size: 12.5px; }
+  .stat-chip b { font-family: 'Sora', sans-serif; font-size: 15px; display: block; }
+
+  /* LESSON */
+  .lesson-wrap { display: flex; flex-direction: column; gap: 14px; animation: fadeUp 0.25s ease; }
+  .lesson-header { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .lesson-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; }
+  .lesson-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .os-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
+  .os-win { background: rgba(121,192,255,0.12); color: var(--cyan); }
+  .os-linux { background: rgba(63,185,80,0.12); color: var(--green); }
+  .os-ps { background: rgba(188,140,255,0.12); color: var(--purple); }
+
+  /* TERMINAL */
+  .terminal { background: #0a0c10; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .terminal-bar { background: var(--surface2); padding: 10px 16px; display: flex; align-items: center; gap: 8px; }
+  .t-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .t-title { font-size: 12px; color: var(--muted); margin-left: 4px; font-family: var(--mono); }
+  .terminal-body { padding: 18px 20px; min-height: 160px; font-family: var(--mono); font-size: 13.5px; line-height: 1.8; }
+  .t-line { margin-bottom: 2px; }
+  .t-prompt { color: var(--green); }
+  .t-cmd { color: var(--text); }
+  .t-output { color: #8b949e; }
+  .t-error { color: var(--red); }
+  .t-highlight { color: var(--cyan); }
+  .t-input-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .t-prompt-static { color: var(--green); font-family: var(--mono); font-size: 13.5px; white-space: nowrap; }
+  .t-input { flex: 1; background: transparent; border: none; outline: none; font-family: var(--mono); font-size: 13.5px; color: var(--text); caret-color: var(--green); }
+
+  /* LESSON CONTENT */
+  .lesson-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+  .cmd-explain { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+  .cmd-block { background: #0a0c10; border: 1px solid var(--border); border-radius: 7px; padding: 12px 16px; font-family: var(--mono); font-size: 13px; color: var(--green); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .cmd-copy { padding: 3px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; font-size: 11px; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; margin-left: auto; }
+  .cmd-copy:hover { color: var(--text); }
+  .cmd-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+  .param-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 6px; }
+  .param-table th { text-align: left; padding: 6px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .param-table td { padding: 8px 10px; border-bottom: 1px solid rgba(48,54,61,0.5); vertical-align: top; }
+  .param-table td:first-child { font-family: var(--mono); color: var(--yellow); font-size: 12px; }
+  .param-table td:last-child { color: var(--muted); }
+
+  /* CHALLENGE */
+  .challenge-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+  .ch-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--yellow); margin-bottom: 8px; }
+  .ch-task { font-size: 14px; font-weight: 500; margin-bottom: 14px; line-height: 1.5; }
+  .ch-hint { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; font-style: italic; }
+  .ch-feedback { padding: 10px 14px; border-radius: 7px; font-size: 13px; line-height: 1.5; margin-top: 10px; font-family: var(--mono); }
+  .ch-good { background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.25); color: var(--green); }
+  .ch-bad { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.25); color: var(--red); }
+  .ch-partial { background: rgba(227,179,65,0.1); border: 1px solid rgba(227,179,65,0.25); color: var(--yellow); }
+
+  .nav-row { display: flex; gap: 8px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+  .btn-green { padding: 10px 22px; background: var(--green); color: #000; border: none; border-radius: 7px; font-family: 'Sora', monospace; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+  .btn-green:hover { opacity: 0.85; }
+  .btn-ghost { padding: 10px 18px; background: transparent; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .btn-ghost:hover { border-color: var(--text); color: var(--text); }
+
+  .progress-strip { background: var(--border); border-radius: 3px; height: 3px; margin-bottom: 18px; }
+  .progress-fill { height: 3px; background: var(--green); border-radius: 3px; transition: width 0.4s; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) { .home-grid { grid-template-columns: 1fr; } header { padding: 14px 18px; } .app { padding: 20px 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">$_</div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span class="logo-name">IT Practice Hub</span>
+      <span class="logo-sep">›</span>
+      <span class="logo-page">Command Line Trainer</span>
+    </div>
+  </div>
+  <a href="index.html" class="back-btn">← Back to Hub</a>
+</header>
+
+<div class="app" id="app"></div>
+
+<script>
+const modules = [
+  {
+    id: "win-networking",
+    os: "Windows",
+    osClass: "os-win",
+    title: "Windows Networking Commands",
+    desc: "Essential CMD commands for diagnosing and fixing network issues",
+    color: "#79C0FF",
+    lessons: [
+      {
+        cmd: "ipconfig",
+        title: "ipconfig — View IP Configuration",
+        desc: "Displays all current TCP/IP network configuration values. Essential for checking IP address, subnet, gateway, and DNS.",
+        params: [
+          { flag: "/all", desc: "Show full details including MAC address, DHCP status, DNS servers" },
+          { flag: "/release", desc: "Release current DHCP-assigned IP address" },
+          { flag: "/renew", desc: "Request a new IP address from DHCP server" },
+          { flag: "/flushdns", desc: "Clear the local DNS resolver cache" }
+        ],
+        output: `Windows IP Configuration\n\nEthernet adapter Ethernet:\n   Connection-specific DNS Suffix: company.local\n   IPv4 Address. . . . . . . . : 192.168.1.45\n   Subnet Mask . . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . . : 192.168.1.1`,
+        challenge: { task: "Run the command to show full network details including MAC address and DNS servers.", hint: "You need the flag that shows ALL details.", answers: ["ipconfig /all"], explanation: "ipconfig /all reveals the full config including physical (MAC) address, DHCP server, DNS server IPs, and lease information." }
+      },
+      {
+        cmd: "ping",
+        title: "ping — Test Network Connectivity",
+        desc: "Sends ICMP echo packets to test if a host is reachable and measure round-trip time. Your first line of network diagnosis.",
+        params: [
+          { flag: "-t", desc: "Continuous ping until stopped with Ctrl+C" },
+          { flag: "-n [count]", desc: "Send a specific number of packets (default 4)" },
+          { flag: "-l [size]", desc: "Set packet size for testing MTU issues" }
+        ],
+        output: `Pinging google.com [142.250.196.110] with 32 bytes of data:\nReply from 142.250.196.110: bytes=32 time=12ms TTL=118\nReply from 142.250.196.110: bytes=32 time=11ms TTL=118\n\nPing statistics for 142.250.196.110:\n    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)`,
+        challenge: { task: "Ping 8.8.8.8 continuously until you press Ctrl+C to monitor network stability.", hint: "Use the flag that makes ping run forever.", answers: ["ping 8.8.8.8 -t", "ping -t 8.8.8.8"], explanation: "ping -t sends continuous packets. Useful for monitoring connection stability over time. Press Ctrl+C to stop and see summary statistics." }
+      },
+      {
+        cmd: "netstat",
+        title: "netstat — Network Statistics",
+        desc: "Shows active connections, listening ports, and network statistics. Critical for identifying unauthorized connections or port conflicts.",
+        params: [
+          { flag: "-a", desc: "Show all connections and listening ports" },
+          { flag: "-n", desc: "Display addresses and ports numerically (no DNS resolution)" },
+          { flag: "-o", desc: "Show the owning process ID (PID) for each connection" },
+          { flag: "-ano", desc: "Combine all three — most useful for IT support" }
+        ],
+        output: `  Proto  Local Address          Foreign Address        State           PID\n  TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4\n  TCP    192.168.1.45:49832     142.250.196.110:443    ESTABLISHED     8204\n  TCP    192.168.1.45:49901     203.0.113.55:4444      ESTABLISHED     3321`,
+        challenge: { task: "Show all active connections with port numbers and process IDs — no DNS lookup.", hint: "Combine three flags: all, numeric, and owning PID.", answers: ["netstat -ano", "netstat -a -n -o"], explanation: "netstat -ano is the most useful combination for IT support: -a shows all, -n prevents slow DNS lookups, -o shows PIDs so you can match connections to processes in Task Manager." }
+      }
+    ]
+  },
+  {
+    id: "win-system",
+    os: "PowerShell",
+    osClass: "os-ps",
+    title: "PowerShell Essentials",
+    desc: "Core PowerShell commands for Windows system administration",
+    color: "#BC8CFF",
+    lessons: [
+      {
+        cmd: "Get-Service",
+        title: "Get-Service — Manage Windows Services",
+        desc: "View, start, and stop Windows services. Essential for troubleshooting — many issues trace back to a stopped service.",
+        params: [
+          { flag: "| Where Status -eq Running", desc: "Filter to show only running services" },
+          { flag: "-Name 'Spooler'", desc: "Get status of a specific service by name" },
+          { flag: "| Stop-Service", desc: "Pipe output to stop all matching services" },
+          { flag: "| Start-Service", desc: "Pipe output to start services" }
+        ],
+        output: `Status   Name               DisplayName\n------   ----               -----------\nRunning  Spooler            Print Spooler\nRunning  wuauserv           Windows Update\nStopped  W32Time            Windows Time\nRunning  Winmgmt            Windows Management Instrumentation`,
+        challenge: { task: "Get the current status of the Print Spooler service by its service name.", hint: "The service name is 'Spooler'", answers: ["get-service -name 'spooler'", "get-service spooler", "get-service -name spooler", "Get-Service -Name 'Spooler'"], explanation: "Get-Service -Name 'Spooler' shows the current status of the print spooler. If it shows Stopped, use Start-Service to restart it — this fixes many printer issues." }
+      },
+      {
+        cmd: "Get-EventLog",
+        title: "Get-EventLog — Read Windows Event Logs",
+        desc: "Query Windows Event Logs from the command line — faster than opening Event Viewer for quick lookups.",
+        params: [
+          { flag: "-LogName System", desc: "Read the System event log" },
+          { flag: "-LogName Application", desc: "Read the Application event log" },
+          { flag: "-Newest 20", desc: "Return only the most recent N entries" },
+          { flag: "-EntryType Error", desc: "Filter by type: Error, Warning, Information" }
+        ],
+        output: `   Index Time          EntryType   Source                 Message\n   ----- ----          ---------   ------                 -------\n   12456 Mar 07 09:14  Error       Service Control Manager The Print Spooler service...\n   12455 Mar 07 08:52  Warning     Disk                    The driver detected a controller error...`,
+        challenge: { task: "Show the 10 most recent errors from the System event log.", hint: "Combine LogName, Newest, and EntryType parameters.", answers: ["get-eventlog -logname system -newest 10 -entrytype error", "Get-EventLog -LogName System -Newest 10 -EntryType Error"], explanation: "Combining -Newest and -EntryType Error gives you a quick view of recent system errors without opening Event Viewer. Perfect for fast triage." }
+      }
+    ]
+  },
+  {
+    id: "linux-basics",
+    os: "Linux",
+    osClass: "os-linux",
+    title: "Linux Command Basics",
+    desc: "Fundamental Linux commands every IT support pro should know",
+    color: "#3FB950",
+    lessons: [
+      {
+        cmd: "ls / cd / pwd",
+        title: "Navigation — ls, cd, pwd",
+        desc: "The three fundamental commands for navigating the Linux filesystem. You'll use these constantly.",
+        params: [
+          { flag: "ls -la", desc: "List all files (including hidden) in long format with permissions" },
+          { flag: "ls -lh", desc: "Long format with human-readable file sizes" },
+          { flag: "cd /path", desc: "Change to absolute directory path" },
+          { flag: "cd ~", desc: "Return to home directory" }
+        ],
+        output: `total 48\ndrwxr-xr-x  8 bal  staff  256 Mar  7 09:30 .\ndrwxr-xr-x  3 root root   96 Mar  7 08:00 ..\n-rw-r--r--  1 bal  staff  220 Mar  7 08:00 .bash_profile\ndrwxr-xr-x  2 bal  staff   64 Mar  7 09:15 Documents\n-rwxr-xr-x  1 bal  staff 8192 Mar  7 09:20 script.sh`,
+        challenge: { task: "List all files in the current directory including hidden files, in long format.", hint: "You need two flags combined — 'l' for long and 'a' for all (including hidden).", answers: ["ls -la", "ls -al", "ls -l -a", "ls -a -l"], explanation: "ls -la shows all files including hidden ones (starting with .) in long format with permissions, owner, size, and modification date. Essential for system investigation." }
+      },
+      {
+        cmd: "grep",
+        title: "grep — Search Text Patterns",
+        desc: "Search through files or command output for specific text patterns. Indispensable for log analysis.",
+        params: [
+          { flag: "-i", desc: "Case-insensitive search" },
+          { flag: "-r", desc: "Recursive search through directories" },
+          { flag: "-n", desc: "Show line numbers in output" },
+          { flag: "-v", desc: "Invert match — show lines that do NOT match" }
+        ],
+        output: `/var/log/syslog:1247: Mar  7 09:14:22 server sshd[1234]: Failed password for invalid user admin\n/var/log/syslog:1289: Mar  7 09:17:51 server sshd[1238]: Failed password for invalid user root\n/var/log/syslog:1301: Mar  7 09:18:02 server sshd[1242]: Failed password for invalid user admin`,
+        challenge: { task: "Search the file /var/log/syslog for the word 'error' regardless of capitalization.", hint: "You need the flag that ignores case.", answers: ["grep -i error /var/log/syslog", "grep -i 'error' /var/log/syslog"], explanation: "grep -i makes the search case-insensitive, so it matches 'error', 'Error', 'ERROR', etc. Perfect for log searching where capitalization varies." }
+      },
+      {
+        cmd: "chmod",
+        title: "chmod — Change File Permissions",
+        desc: "Control who can read, write, and execute files. Understanding permissions is fundamental to Linux security.",
+        params: [
+          { flag: "755", desc: "Owner: full, Group: read+execute, Others: read+execute (common for scripts)" },
+          { flag: "644", desc: "Owner: read+write, Group: read, Others: read (common for files)" },
+          { flag: "600", desc: "Owner: read+write only — private files like SSH keys" },
+          { flag: "+x", desc: "Add execute permission for all users" }
+        ],
+        output: `Before: -rw-r--r-- 1 bal staff 4096 Mar 7 09:00 script.sh\nCommand: chmod +x script.sh\nAfter:  -rwxr-xr-x 1 bal staff 4096 Mar 7 09:00 script.sh`,
+        challenge: { task: "Set the file 'deploy.sh' to be readable and executable by everyone, but only writable by the owner (755).", hint: "Use octal notation with the three-digit permission code.", answers: ["chmod 755 deploy.sh"], explanation: "chmod 755 gives the owner (7=rwx) full control and group/others (5=r-x) read and execute. Standard permission for shell scripts that should run but not be modified by others." }
+      }
+    ]
+  }
+];
+
+const state = { screen: 'home', module: null, lessonIdx: 0, challengeInput: '', challengeResult: null, outputShown: false };
+
+function startModule(id) {
+  state.module = modules.find(m => m.id === id);
+  state.lessonIdx = 0; state.challengeInput = ''; state.challengeResult = null; state.outputShown = false;
+  state.screen = 'lesson';
+  render();
+  setTimeout(() => { const inp = document.getElementById('challengeInput'); if (inp) inp.focus(); }, 100);
+}
+
+function showOutput() { state.outputShown = true; render(); }
+
+function checkChallenge() {
+  const inp = document.getElementById('challengeInput');
+  if (!inp) return;
+  const val = inp.value.trim().toLowerCase();
+  const lesson = state.module.lessons[state.lessonIdx];
+  const answers = lesson.challenge.answers.map(a => a.toLowerCase());
+  if (answers.includes(val)) state.challengeResult = 'correct';
+  else if (answers.some(a => a.startsWith(val.split(' ')[0]))) state.challengeResult = 'partial';
+  else state.challengeResult = 'wrong';
+  render();
+  setTimeout(() => { const inp = document.getElementById('challengeInput'); if (inp) { inp.value = val; inp.focus(); }}, 50);
+}
+
+function nextLesson() {
+  if (state.lessonIdx + 1 >= state.module.lessons.length) { state.screen = 'home'; render(); return; }
+  state.lessonIdx++; state.challengeInput = ''; state.challengeResult = null; state.outputShown = false;
+  render();
+  setTimeout(() => { const inp = document.getElementById('challengeInput'); if (inp) inp.focus(); }, 100);
+}
+
+function goHome() { state.screen = 'home'; render(); }
+
+function handleKey(e) { if (e.key === 'Enter') checkChallenge(); }
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'home') app.innerHTML = renderHome();
+  else app.innerHTML = renderLesson();
+}
+
+function renderHome() {
+  const total = modules.reduce((a,m) => a + m.lessons.length, 0);
+  return `<div style="animation:fadeUp 0.3s ease">
+    <div class="intro-box" style="margin-bottom:20px;">
+      <div class="intro-title">⌨️ Command Line Trainer</div>
+      <div class="intro-sub">Learn essential Windows CMD, PowerShell, and Linux commands through guided lessons with an interactive practice terminal. Each lesson explains the command, shows real output, and challenges you to type it yourself.</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-chip"><b>${modules.length}</b> Modules</div>
+      <div class="stat-chip"><b>${total}</b> Commands</div>
+      <div class="stat-chip"><b>3</b> Platforms</div>
+    </div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Choose a Module</div>
+    <div class="home-grid">
+      ${modules.map(m => `<div class="home-card" onclick="startModule('${m.id}')">
+        <div class="hc-os"><span class="os-badge ${m.osClass}">${m.os}</span></div>
+        <div class="hc-title">${m.title}</div>
+        <div class="hc-count">${m.lessons.length} lessons</div>
+        <div style="font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5;">${m.desc}</div>
+        <div class="hc-bar" style="background:${m.color}"></div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderLesson() {
+  const m = state.module;
+  const lesson = m.lessons[state.lessonIdx];
+  const prog = ((state.lessonIdx) / m.lessons.length) * 100;
+  const ch = lesson.challenge;
+  const promptStr = m.os === 'Linux' ? 'user@server:~$' : m.os === 'PowerShell' ? 'PS C:\\>' : 'C:\\>';
+
+  let fbHtml = '';
+  if (state.challengeResult === 'correct') {
+    fbHtml = `<div class="ch-feedback ch-good">✅ Correct! ${ch.explanation}</div>`;
+  } else if (state.challengeResult === 'partial') {
+    fbHtml = `<div class="ch-feedback ch-partial">⚠️ Close — check your flags/syntax. Expected: <strong>${ch.answers[0]}</strong></div>`;
+  } else if (state.challengeResult === 'wrong') {
+    fbHtml = `<div class="ch-feedback ch-bad">❌ Not quite. Expected: <strong>${ch.answers[0]}</strong> — ${ch.explanation}</div>`;
+  }
+
+  return `<div class="lesson-wrap">
+    <div class="progress-strip"><div class="progress-fill" style="width:${prog}%"></div></div>
+    <div class="lesson-header">
+      <div>
+        <div class="lesson-title">${lesson.title}</div>
+        <div class="lesson-meta">${m.title} · Lesson ${state.lessonIdx+1} of ${m.lessons.length}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="os-badge ${m.osClass}">${m.os}</span>
+        <button class="btn-ghost" onclick="goHome()">Exit</button>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="cmd-explain">
+        <div class="cmd-block">
+          <span>${lesson.cmd}</span>
+          <button class="cmd-copy" onclick="navigator.clipboard.writeText('${lesson.cmd}')">copy</button>
+        </div>
+        <div class="cmd-desc">${lesson.desc}</div>
+      </div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Common Parameters</div>
+      <table class="param-table">
+        <tr><th>Flag / Option</th><th>What it does</th></tr>
+        ${lesson.params.map(p => `<tr><td>${p.flag}</td><td>${p.desc}</td></tr>`).join('')}
+      </table>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="t-dot" style="background:#FF5F57"></div>
+        <div class="t-dot" style="background:#FFBD2E"></div>
+        <div class="t-dot" style="background:#28C840"></div>
+        <span class="t-title">${m.os === 'Linux' ? 'bash' : m.os === 'PowerShell' ? 'powershell.exe' : 'cmd.exe'}</span>
+        ${!state.outputShown ? `<button class="cmd-copy" style="margin-left:auto" onclick="showOutput()">Show example output</button>` : ''}
+      </div>
+      <div class="terminal-body">
+        <div class="t-line"><span class="t-prompt">${promptStr} </span><span class="t-cmd">${lesson.cmd}${lesson.params[0] ? ' ' + lesson.params[0].flag.split(' ')[0] : ''}</span></div>
+        ${state.outputShown ? lesson.output.split('\n').map(l => `<div class="t-line t-output">${l}</div>`).join('') : '<div class="t-line t-output" style="opacity:0.4">[ Click "Show example output" to see sample output ]</div>'}
+      </div>
+    </div>
+
+    <div class="challenge-box">
+      <div class="ch-label">⚡ Challenge</div>
+      <div class="ch-task">${ch.task}</div>
+      <div class="ch-hint">💡 Hint: ${ch.hint}</div>
+      <div class="terminal" style="padding:0">
+        <div class="terminal-body" style="padding:12px 16px;min-height:auto;">
+          <div class="t-input-row">
+            <span class="t-prompt-static">${promptStr}&nbsp;</span>
+            <input id="challengeInput" class="t-input" placeholder="type your command here..." onkeydown="handleKey(event)" autocomplete="off" autocorrect="off" spellcheck="false">
+          </div>
+        </div>
+      </div>
+      ${fbHtml}
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn-green" onclick="checkChallenge()">Run ↵</button>
+        ${state.challengeResult === 'correct' ? `<button class="btn-ghost" onclick="nextLesson()">${state.lessonIdx+1 >= m.lessons.length ? 'Finish Module ✓' : 'Next Lesson →'}</button>` : ''}
+        <button class="btn-ghost" onclick="document.getElementById('challengeInput').value=''; state.challengeResult=null; render();">Clear</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Drill — IT Practice Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F7F4; --surface: #fff; --surface2: #EAEFE9;
+    --border: #D4DDD3; --text: #1A1F1A; --muted: #6B7A6A;
+    --accent: #2E7D52; --accent-light: #E8F5EE;
+    --red: #C0392B; --red-light: #FAEBEA;
+    --radius: 10px; --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--text); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; }
+  .logo-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; }
+  .logo-sep { color: var(--border); margin: 0 4px; }
+  .logo-page { font-size: 14px; color: var(--muted); }
+  .back-btn { padding: 7px 14px; border: 1px solid var(--border); background: transparent; border-radius: 7px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .back-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .app { flex: 1; max-width: 720px; margin: 0 auto; width: 100%; padding: 32px 24px; }
+
+  /* STREAK BANNER */
+  .streak-banner { background: var(--text); color: #fff; border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .streak-left { display: flex; align-items: center; gap: 14px; }
+  .streak-fire { font-size: 32px; }
+  .streak-num { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+  .streak-lbl { font-size: 12px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.8px; }
+  .streak-dots { display: flex; gap: 6px; }
+  .streak-dot { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .streak-dot.done { background: rgba(255,255,255,0.9); }
+
+  /* HOME */
+  .home-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 20px; box-shadow: var(--shadow); animation: fadeUp 0.3s ease; }
+  .home-title { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 8px; }
+  .home-sub { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+  .cat-toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .cat-toggle { padding: 7px 14px; border-radius: 7px; border: 1.5px solid var(--border); background: var(--surface2); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .cat-toggle.on { background: var(--text); color: #fff; border-color: var(--text); }
+  .start-btn { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 9px; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+  .start-btn:hover { opacity: 0.88; }
+
+  .best-row { display: flex; gap: 10px; }
+  .best-box { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 14px 16px; }
+  .best-val { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700; }
+  .best-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.7px; }
+
+  /* DRILL */
+  .drill-wrap { animation: fadeUp 0.25s ease; }
+  .drill-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .q-counter { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .q-cat-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  .progress-wrap { background: var(--border); border-radius: 4px; height: 5px; margin-bottom: 24px; overflow: hidden; }
+  .progress-fill { height: 5px; background: var(--accent); border-radius: 4px; transition: width 0.4s ease; }
+  .question-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin-bottom: 14px; }
+  .q-text { font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.4; }
+  .options-list { display: flex; flex-direction: column; gap: 8px; }
+  .opt { display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 9px; cursor: pointer; font-size: 14px; line-height: 1.45; background: var(--surface2); transition: all 0.15s; }
+  .opt:hover { border-color: var(--accent); background: var(--accent-light); }
+  .opt.selected { border-color: var(--text); background: var(--text); color: #fff; }
+  .opt.correct-ans { border-color: var(--accent) !important; background: var(--accent-light) !important; color: var(--text) !important; }
+  .opt.wrong-ans { border-color: var(--red) !important; background: var(--red-light) !important; color: var(--text) !important; }
+  .opt-key { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .opt.selected .opt-key { background: rgba(255,255,255,0.25); }
+
+  .explain-box { background: var(--accent-light); border: 1.5px solid #b2ddc4; border-radius: 9px; padding: 14px 18px; font-size: 13.5px; line-height: 1.6; margin-bottom: 14px; animation: fadeUp 0.2s ease; }
+  .explain-wrong { background: var(--red-light); border-color: #e8b4b0; }
+
+  .next-btn { width: 100%; padding: 13px; background: var(--text); color: #fff; border: none; border-radius: 9px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+  .next-btn:hover { opacity: 0.85; }
+
+  /* RESULTS */
+  .results { animation: fadeUp 0.3s ease; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: var(--text); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .score-pct { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 700; line-height: 1; }
+  .score-sub { font-size: 10px; opacity: 0.6; letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+  .review-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .review-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: 9px; font-size: 13px; line-height: 1.5; }
+  .review-item.ok { background: var(--accent-light); }
+  .review-item.ko { background: var(--red-light); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">IT</div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span class="logo-name">IT Practice Hub</span>
+      <span class="logo-sep">›</span>
+      <span class="logo-page">Daily Drill</span>
+    </div>
+  </div>
+  <a href="index.html" class="back-btn">← Back to Hub</a>
+</header>
+
+<div class="app" id="app"></div>
+
+<script>
+const allQuestions = [
+  { cat: "Networking", q: "A user can ping 8.8.8.8 but cannot open any websites. What is the most likely cause?", opts: ["Default gateway is down","DNS is not resolving","NIC driver is outdated","Firewall is blocking port 443"], ans: 1, exp: "If external IPs are reachable but domain names aren't, the DNS resolver is the bottleneck. Try ipconfig /flushdns or change DNS to 8.8.8.8 manually." },
+  { cat: "Networking", q: "A PC has an IP address of 169.254.12.45. What does this indicate?", opts: ["Static IP was manually set","DHCP server could not be reached (APIPA)","The NIC is faulty","The subnet mask is wrong"], ans: 1, exp: "169.254.x.x is an APIPA (Automatic Private IP Addressing) address assigned by Windows when DHCP fails. Check if the DHCP server is reachable." },
+  { cat: "Networking", q: "Which command shows all active TCP connections and the process IDs using them?", opts: ["ipconfig /all","netstat -ano","tracert","nslookup"], ans: 1, exp: "netstat -ano shows active connections, their states, local/remote addresses, and the PID of the process using each connection." },
+  { cat: "Hardware", q: "A monitor shows a faint image when you shine a flashlight at it. What component has likely failed?", opts: ["GPU / graphics card","The monitor's backlight or inverter","The video cable","RAM"], ans: 1, exp: "A faint visible image means the panel is working but the backlight (fluorescent or LED) or its driver (inverter on older LCDs) has failed." },
+  { cat: "Hardware", q: "A user's PC suddenly shuts off under heavy load. What is the most likely hardware cause?", opts: ["Corrupt OS files","Overheating CPU triggering thermal shutdown","Bad RAM module","Failing hard drive"], ans: 1, exp: "Thermal shutdown is a safety mechanism. Under heavy load, if cooling is insufficient (dirty fan, dried thermal paste), the CPU will cut power to protect itself." },
+  { cat: "Hardware", q: "A laser printer prints faded text despite a new toner cartridge. What should you check first?", opts: ["Replace the fuser unit","Check the print density/darkness setting in the driver","Replace the drum unit","Update the printer driver"], ans: 1, exp: "Print density/darkness settings in the printer driver or printer menu are the first thing to check — often set too low by default or reset after a driver reinstall." },
+  { cat: "OS & Software", q: "Which Windows command scans for and repairs corrupted system files?", opts: ["chkdsk /f","sfc /scannow","dism /online /cleanup-image","defrag C:"], ans: 1, exp: "sfc /scannow (System File Checker) scans protected Windows files and replaces corrupted versions with cached copies. Run as Administrator." },
+  { cat: "OS & Software", q: "A user's PC is at 100% disk usage constantly. Which process is most commonly responsible on Windows 10?", opts: ["Windows Defender","Superfetch / SysMain service","Windows Update","Print Spooler"], ans: 1, exp: "SysMain (formerly Superfetch) can cause sustained 100% disk usage on HDDs. Disabling it often resolves the issue. Also check for Windows Update running in background." },
+  { cat: "OS & Software", q: "An application crashes with 'side-by-side configuration is incorrect'. What is the fix?", opts: ["Reinstall Windows","Install the required Visual C++ Redistributable package","Update the graphics driver","Run chkdsk"], ans: 1, exp: "This error means the app can't find a required C++ runtime (Visual C++ Redistributable). Install the correct version from Microsoft's website and retry." },
+  { cat: "Accounts", q: "A user is locked out of their AD account after failed login attempts. Which tool do you use to unlock it?", opts: ["Task Manager","Active Directory Users and Computers (ADUC)","Regedit","Group Policy Editor"], ans: 1, exp: "ADUC (Active Directory Users and Computers) — right-click the user account → Properties → Account tab → unlock. You can also use PowerShell: Unlock-ADAccount." },
+  { cat: "Accounts", q: "A user's password reset worked in AD, but they still can't log in on their laptop away from the office. Why?", opts: ["Their account was disabled","The laptop is using cached credentials from before the reset","The DNS server is unreachable","Their MFA token expired"], ans: 1, exp: "When a laptop is offline (not connected to the domain), it uses cached credentials. The new password won't work until the device connects to the network and re-authenticates." },
+  { cat: "Accounts", q: "What Windows feature stores and manages saved network/web credentials that may cause lockouts after a password change?", opts: ["Keychain","Credential Manager","Vault Manager","Windows Hello"], ans: 1, exp: "Credential Manager (in Control Panel) stores saved usernames and passwords. After a password change, old saved credentials cause silent repeated failed attempts, triggering lockout." },
+  { cat: "Security", q: "A user reports their browser homepage changed to an unknown site and they see extra toolbars they didn't install. What is this?", opts: ["Ransomware","Browser hijacker / PUP","Keylogger","Rootkit"], ans: 1, exp: "Browser hijackers (often bundled as PUPs — Potentially Unwanted Programs) modify browser settings. Remove via browser extension manager and scan with Malwarebytes." },
+  { cat: "Security", q: "What is the Windows Event ID for a successful logon?", opts: ["4625","4740","4624","4688"], ans: 2, exp: "Event ID 4624 = successful logon. 4625 = failed logon. 4740 = account lockout. 4688 = new process created. Knowing these is key for security investigation." },
+  { cat: "Security", q: "A user receives an email asking them to verify their password via a link. They click it, enter their credentials, and are redirected to the real company site. What attack occurred?", opts: ["Vishing","Credential stuffing","Phishing (credential harvesting)","Watering hole attack"], ans: 2, exp: "This is a classic phishing attack — a fake site mimics the real one to steal credentials. The redirect to the real site is designed to make the victim think nothing happened." },
+  { cat: "Networking", q: "What does the TTL value in a ping response indicate?", opts: ["Connection speed in milliseconds","How many hops remain before the packet is discarded","Packet size in bytes","DNS cache expiry time"], ans: 1, exp: "TTL (Time to Live) decrements by 1 at each router hop. It prevents packets looping indefinitely. A TTL of 128 typically means Windows source; 64 means Linux/Mac." },
+  { cat: "Hardware", q: "Which tool would you use to check the SMART health status of a hard drive?", opts: ["Device Manager","CrystalDiskInfo","Disk Cleanup","chkdsk"], ans: 1, exp: "CrystalDiskInfo reads SMART (Self-Monitoring, Analysis and Reporting Technology) data directly from the drive. It shows health, reallocated sectors, and power-on hours." },
+  { cat: "OS & Software", q: "A user cannot print and the print queue shows jobs as stuck. What is the fastest fix?", opts: ["Restart the PC","Stop Print Spooler, delete files in spool folder, restart Spooler","Uninstall and reinstall printer","Reinstall Windows printer drivers"], ans: 1, exp: "Stopping the Print Spooler service, deleting the files in C:\\Windows\\System32\\spool\\PRINTERS, then restarting the service clears stuck jobs quickly without a reboot." },
+  { cat: "Security", q: "What type of malware encrypts user files and demands payment for the decryption key?", opts: ["Adware","Spyware","Ransomware","Worm"], ans: 2, exp: "Ransomware encrypts files and demands payment (usually cryptocurrency) for a decryption key. Immediate steps: disconnect from network, don't reboot, contact security team, check backups." },
+  { cat: "Accounts", q: "A user needs access to a file share. Following least privilege, what is the correct way to grant access?", opts: ["Give them admin rights to the whole server","Add them only to the specific AD security group that has access to that share","Share the folder publicly and tell them the path","Give them the local admin password"], ans: 1, exp: "Least privilege means granting the minimum access required. Adding to a specific security group tied to that share is correct. Never grant broader access than the task requires." }
+];
+
+const state = { screen: 'home', streak: 3, bestStreak: 7, totalDone: 47, categories: { Networking: true, Hardware: true, 'OS & Software': true, Accounts: true, Security: true }, questions: [], qIdx: 0, selected: null, revealed: false, results: [] };
+
+function getQs() {
+  const cats = Object.keys(state.categories).filter(c => state.categories[c]);
+  const filtered = allQuestions.filter(q => cats.includes(q.cat));
+  return [...filtered].sort(() => Math.random() - 0.5).slice(0, 10);
+}
+
+function startDrill() {
+  state.screen = 'drill';
+  state.questions = getQs();
+  state.qIdx = 0; state.selected = null; state.revealed = false; state.results = [];
+  render();
+}
+
+function toggleCat(c) { state.categories[c] = !state.categories[c]; render(); }
+
+function selectOpt(i) { if (state.revealed) return; state.selected = i; render(); }
+
+function reveal() {
+  if (state.selected === null) return;
+  state.revealed = true;
+  const q = state.questions[state.qIdx];
+  state.results.push({ q: q.q, correct: state.selected === q.ans, chosen: q.opts[state.selected], answer: q.opts[q.ans] });
+  render();
+}
+
+function nextQ() {
+  if (state.qIdx + 1 >= state.questions.length) { state.screen = 'results'; render(); return; }
+  state.qIdx++; state.selected = null; state.revealed = false; render();
+}
+
+function goHome() { state.screen = 'home'; render(); }
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'home') app.innerHTML = renderHome();
+  else if (state.screen === 'drill') app.innerHTML = renderDrill();
+  else app.innerHTML = renderResults();
+}
+
+function renderHome() {
+  const cats = Object.keys(state.categories);
+  const days = ['M','T','W','T','F','S','S'];
+  return `
+  <div>
+    <div class="streak-banner">
+      <div class="streak-left">
+        <div class="streak-fire">🔥</div>
+        <div><div class="streak-num">${state.streak}</div><div class="streak-lbl">Day Streak</div></div>
+      </div>
+      <div class="streak-dots">
+        ${days.map((d,i) => `<div class="streak-dot ${i < state.streak % 7 ? 'done' : ''}">${i < state.streak % 7 ? '✓' : d}</div>`).join('')}
+      </div>
+    </div>
+    <div class="home-card">
+      <div class="home-title">📋 Daily Drill</div>
+      <div class="home-sub">10 questions covering your chosen categories. Instant feedback after each answer. Build consistency and find your weak spots.</div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Topic Filter</div>
+      <div class="cat-toggles">
+        ${cats.map(c => `<button class="cat-toggle ${state.categories[c]?'on':''}" onclick="toggleCat('${c}')">${c}</button>`).join('')}
+      </div>
+      <button class="start-btn" onclick="startDrill()">Start Today's Drill →</button>
+    </div>
+    <div class="best-row">
+      <div class="best-box"><div class="best-val">${state.bestStreak}</div><div class="best-lbl">Best Streak</div></div>
+      <div class="best-box"><div class="best-val">${state.totalDone}</div><div class="best-lbl">Total Drills</div></div>
+      <div class="best-box"><div class="best-val">${allQuestions.length}</div><div class="best-lbl">Questions</div></div>
+    </div>
+  </div>`;
+}
+
+function renderDrill() {
+  const q = state.questions[state.qIdx];
+  const pct = (state.qIdx / state.questions.length) * 100;
+  const keys = ['A','B','C','D'];
+  return `<div class="drill-wrap">
+    <div class="drill-top">
+      <span class="q-counter">Question ${state.qIdx+1} of ${state.questions.length}</span>
+      <span class="q-cat-badge">${q.cat}</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="question-box" style="margin-bottom:14px;">
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="options-list" style="margin-bottom:14px;">
+      ${q.opts.map((o,i) => {
+        let cls = '';
+        if (state.revealed) {
+          if (i === q.ans) cls = 'correct-ans';
+          else if (i === state.selected && i !== q.ans) cls = 'wrong-ans';
+        } else if (state.selected === i) cls = 'selected';
+        return `<div class="opt ${cls}" onclick="selectOpt(${i})"><span class="opt-key">${keys[i]}</span><span>${o}</span></div>`;
+      }).join('')}
+    </div>
+    ${state.revealed ? `<div class="explain-box ${state.selected !== q.ans ? 'explain-wrong' : ''}">
+      ${state.selected === q.ans ? '✅ Correct! ' : '❌ Not quite. '}<strong>${q.opts[q.ans]}</strong> is the right answer. ${q.exp}
+    </div>` : ''}
+    ${state.revealed
+      ? `<button class="next-btn" onclick="nextQ()">${state.qIdx+1 >= state.questions.length ? 'See Results' : 'Next Question →'}</button>`
+      : `<button class="next-btn" onclick="reveal()" style="background:var(--accent);${state.selected===null?'opacity:0.4;cursor:default;':''}">Confirm Answer</button>`}
+  </div>`;
+}
+
+function renderResults() {
+  const correct = state.results.filter(r=>r.correct).length;
+  const pct = Math.round((correct/state.results.length)*100);
+  return `<div class="results">
+    <div class="home-card" style="text-align:center;margin-bottom:20px;">
+      <div class="score-circle"><div class="score-pct">${pct}%</div><div class="score-sub">Score</div></div>
+      <div class="home-title" style="margin-bottom:4px;">${pct>=80?'Excellent! 🏆':pct>=60?'Good Job 👍':'Keep Drilling 📚'}</div>
+      <div style="color:var(--muted);font-size:14px;margin-bottom:20px;">${correct} of ${state.results.length} correct</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="start-btn" style="width:auto;padding:11px 24px;" onclick="startDrill()">Drill Again</button>
+        <button class="back-btn" onclick="goHome()">← Home</button>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Review</div>
+    <div class="review-list">
+      ${state.results.map((r,i) => `<div class="review-item ${r.correct?'ok':'ko'}">
+        <span>${r.correct?'✅':'❌'}</span>
+        <div><div style="font-weight:600;font-size:13px;margin-bottom:3px;">${r.q}</div><div style="font-size:12px;color:var(--muted);">Your answer: ${r.chosen}</div>${!r.correct?`<div style="font-size:12px;color:var(--accent);">Correct: ${r.answer}</div>`:''}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>

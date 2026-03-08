@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security Scenarios — IT Practice Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0F1117; --surface: #181C25; --surface2: #1E2330;
+    --border: #2A3040; --text: #E8EAF0; --muted: #6B7280;
+    --accent: #EF4444; --accent2: #F97316;
+    --green: #22C55E; --cyan: #06B6D4;
+    --radius: 10px; --shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; }
+  .logo-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; }
+  .logo-sep { color: var(--border); margin: 0 4px; }
+  .logo-page { font-size: 14px; color: var(--muted); }
+  .back-btn { padding: 7px 14px; border: 1px solid var(--border); background: transparent; border-radius: 7px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .back-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .app { flex: 1; max-width: 860px; margin: 0 auto; width: 100%; padding: 32px 24px; }
+
+  /* HOME */
+  .home-banner { background: linear-gradient(135deg, #1a0a0a 0%, #2d0f0f 50%, #1a0a0a 100%); border: 1px solid #3d1515; border-radius: var(--radius); padding: 32px; margin-bottom: 24px; position: relative; overflow: hidden; }
+  .home-banner::before { content: '🛡️'; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.08; }
+  .home-title { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 8px; color: #fff; }
+  .home-sub { font-size: 14px; color: #9CA3AF; line-height: 1.6; max-width: 500px; }
+  .threat-ticker { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 12px; color: var(--muted); margin-top: 16px; display: flex; align-items: center; gap: 8px; }
+  .ticker-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .scenarios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .sc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; cursor: pointer; transition: all 0.18s; box-shadow: var(--shadow); }
+  .sc-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(239,68,68,0.15); }
+  .sc-icon { font-size: 26px; margin-bottom: 12px; }
+  .sc-sev { display: inline-flex; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .sev-crit { background: rgba(239,68,68,0.15); color: #EF4444; }
+  .sev-high { background: rgba(249,115,22,0.15); color: #F97316; }
+  .sev-med { background: rgba(234,179,8,0.15); color: #EAB308; }
+  .sc-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .sc-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  /* INCIDENT */
+  .inc-wrap { animation: fadeUp 0.25s ease; }
+  .alert-banner { border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+  .alert-crit { background: rgba(239,68,68,0.1); border: 1.5px solid rgba(239,68,68,0.3); }
+  .alert-high { background: rgba(249,115,22,0.1); border: 1.5px solid rgba(249,115,22,0.3); }
+  .alert-icon { font-size: 22px; }
+  .alert-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; }
+  .alert-sub { font-size: 12px; color: var(--muted); }
+
+  .timeline { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .tl-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; }
+  .tl-time { font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; min-width: 55px; margin-top: 1px; }
+  .tl-text { font-size: 13.5px; line-height: 1.5; }
+  .tl-badge { display: inline-flex; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
+  .tb-alert { background: rgba(239,68,68,0.15); color: #EF4444; }
+  .tb-info { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .tb-warn { background: rgba(249,115,22,0.15); color: #F97316; }
+
+  .action-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+  .action-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .action-btn { padding: 12px 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; cursor: pointer; text-align: left; line-height: 1.4; transition: all 0.15s; color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; align-items: flex-start; gap: 8px; }
+  .action-btn:hover { border-color: var(--cyan); background: rgba(6,182,212,0.05); }
+  .action-btn.selected { background: rgba(6,182,212,0.1); border-color: var(--cyan); }
+  .action-btn.correct-action { border-color: var(--green); background: rgba(34,197,94,0.08); }
+  .action-btn.wrong-action { border-color: var(--accent); background: rgba(239,68,68,0.08); }
+  .action-icon { font-size: 16px; flex-shrink: 0; }
+
+  .step-feedback { border-radius: 9px; padding: 14px 18px; margin-bottom: 14px; font-size: 13.5px; line-height: 1.6; animation: fadeUp 0.2s ease; }
+  .sf-good { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); }
+  .sf-bad { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); }
+
+  .score-display { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .score-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 12.5px; }
+  .score-pill span { font-family: 'Sora', sans-serif; font-weight: 700; margin-right: 4px; }
+
+  .btn-primary { padding: 10px 22px; background: var(--cyan); color: #000; border: none; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.35; cursor: default; }
+  .btn-outline { padding: 10px 18px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .btn-outline:hover { border-color: var(--text); color: var(--text); }
+
+  .results-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; text-align: center; }
+  .res-grade { font-family: 'Sora', sans-serif; font-size: 48px; font-weight: 700; letter-spacing: -2px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛡</div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span class="logo-name">IT Practice Hub</span>
+      <span class="logo-sep">›</span>
+      <span class="logo-page">Security Scenarios</span>
+    </div>
+  </div>
+  <a href="index.html" class="back-btn">← Back to Hub</a>
+</header>
+
+<div class="app" id="app"></div>
+
+<script>
+const scenarios = [
+  {
+    id: "ransomware",
+    icon: "🔒",
+    severity: "crit",
+    title: "Ransomware Outbreak",
+    desc: "Files are being encrypted across the network. A ransom note has appeared on multiple machines.",
+    timeline: [
+      { time: "08:14", text: "User reports files in shared drive show .encrypted extension and can't be opened.", badge: "alert" },
+      { time: "08:17", text: "Second user reports same issue on different floor. Ransom note detected on 3 machines.", badge: "alert" },
+      { time: "08:19", text: "EDR tool triggers: mass file rename activity from host WKSTN-047 (IP: 10.0.1.47).", badge: "alert" },
+      { time: "08:21", text: "You are now the first responder. Network is still fully connected.", badge: "info" }
+    ],
+    steps: [
+      {
+        q: "Step 1: Immediate containment. What is your first action?",
+        actions: [
+          { icon: "🔌", text: "Physically disconnect WKSTN-047 from the network and disable its Wi-Fi", correct: true },
+          { icon: "💾", text: "Copy the ransom note for documentation before doing anything else", correct: false },
+          { icon: "🔄", text: "Reboot WKSTN-047 to stop the encryption process", correct: false },
+          { icon: "📧", text: "Email all staff to stop using their computers immediately", correct: false }
+        ],
+        correct_fb: "Correct. Physical isolation of the Patient Zero machine stops lateral spread. Pull the cable and disable Wi-Fi before anything else — don't reboot, as this can trigger additional payloads or destroy forensic artifacts.",
+        wrong_fb: "Physical isolation of the infected machine should be your first action. Rebooting can trigger additional encryption stages and destroy forensic evidence. Emailing staff is too slow for a live outbreak."
+      },
+      {
+        q: "Step 2: Scope the incident. What do you do next?",
+        actions: [
+          { icon: "🗺️", text: "Check EDR/SIEM for other machines showing similar file rename activity", correct: true },
+          { icon: "💳", text: "Read the ransom note to see how much they want", correct: false },
+          { icon: "☎️", text: "Call the CEO to inform them before assessing the full scope", correct: false },
+          { icon: "🔍", text: "Begin forensic analysis of WKSTN-047 immediately", correct: false }
+        ],
+        correct_fb: "Good. Before escalating or investigating one machine deeply, you need to know the scope. EDR/SIEM will show you how many machines are affected and whether the attack is still active.",
+        wrong_fb: "Scoping is critical before escalation or deep forensics. Use your monitoring tools to identify all affected machines first — then escalate with complete information."
+      },
+      {
+        q: "Step 3: Escalation. Scope shows 4 machines affected, spread contained. What now?",
+        actions: [
+          { icon: "📋", text: "Invoke the Incident Response Plan — notify Security Lead, preserve logs, begin formal IR process", correct: true },
+          { icon: "💰", text: "Assess whether paying the ransom is the fastest recovery path", correct: false },
+          { icon: "🔄", text: "Immediately restore from backup without formal IR process", correct: false },
+          { icon: "🤫", text: "Handle it quietly without escalating — don't alarm leadership unnecessarily", correct: false }
+        ],
+        correct_fb: "Correct. With 4 machines affected, this is a formal incident. Invoke your IRP, notify the security lead, preserve all logs, and begin structured IR. Recovery from backup comes later — after containment is verified.",
+        wrong_fb: "Paying ransoms is not recommended — it doesn't guarantee recovery, funds criminal activity, and may violate regulations. Restoring before full containment risks re-infection. This incident requires formal IR escalation."
+      }
+    ]
+  },
+  {
+    id: "phishing-campaign",
+    icon: "🎣",
+    severity: "high",
+    title: "Targeted Phishing Campaign",
+    desc: "Multiple employees report receiving a convincing email impersonating your CEO asking for urgent wire transfers.",
+    timeline: [
+      { time: "13:45", text: "3 employees forward a suspicious email 'From CEO' requesting urgent $15,000 wire transfer.", badge: "warn" },
+      { time: "13:52", text: "Finance confirms: the email address is ceo@company-corp.net (not company.com). Spoofed domain.", badge: "alert" },
+      { time: "13:58", text: "One Finance employee reports they already replied and sent account details.", badge: "alert" },
+      { time: "14:00", text: "IT Security is now aware. You are assigned as responder.", badge: "info" }
+    ],
+    steps: [
+      {
+        q: "Step 1: The Finance employee already replied with account details. First priority?",
+        actions: [
+          { icon: "🏦", text: "Contact Finance to immediately call the bank and attempt to stop/recall any transfer that may have occurred", correct: true },
+          { icon: "📧", text: "Reply to the phishing email telling them you're onto them", correct: false },
+          { icon: "🖥️", text: "Quarantine the Finance employee's computer", correct: false },
+          { icon: "📊", text: "Write an incident report first before taking any action", correct: false }
+        ],
+        correct_fb: "Correct. If financial information was shared, the immediate priority is contacting the bank. Every minute counts — transfers can sometimes be recalled within a short window. Computer forensics comes after.",
+        wrong_fb: "When financial data has been disclosed, stopping the financial loss is the top priority. Contact the bank immediately. Quarantining the PC and documentation are important but secondary."
+      },
+      {
+        q: "Step 2: Contain the email threat. What action do you take?",
+        actions: [
+          { icon: "🚫", text: "Block the spoofed domain (company-corp.net) at the email gateway and pull the phishing emails from all inboxes", correct: true },
+          { icon: "📢", text: "Send a company-wide email explaining what happened", correct: false },
+          { icon: "⏳", text: "Wait for the email security vendor to detect and block it automatically", correct: false },
+          { icon: "🔎", text: "Manually check each employee's inbox one by one", correct: false }
+        ],
+        correct_fb: "Correct. Block the sender domain immediately at the gateway to prevent further delivery. Then use your email admin tools (M365/Google Workspace) to search and remove the phishing email from all inboxes it reached.",
+        wrong_fb: "Proactive blocking and removal is essential. Waiting for automatic detection is too slow for an active campaign. Sending a broad email first before containment can also cause panic."
+      },
+      {
+        q: "Step 3: Follow-up actions. What do you prioritize?",
+        actions: [
+          { icon: "🎓", text: "Report to security team, notify affected staff with guidance, submit phishing sample to threat intel, review email authentication (SPF/DKIM/DMARC)", correct: true },
+          { icon: "🔒", text: "Force password resets for all 3,000 employees as a precaution", correct: false },
+          { icon: "📵", text: "Disable company email entirely until the investigation is complete", correct: false },
+          { icon: "🙈", text: "Resolve quietly — it was only one person who responded and no money was transferred", correct: false }
+        ],
+        correct_fb: "Correct. Comprehensive follow-up: report to security team, notify and educate affected staff, submit the phishing sample to threat intelligence feeds, and review your DMARC/SPF/DKIM records to prevent spoofing of your own domain.",
+        wrong_fb: "Blanket password resets for all employees are disproportionate for a phishing email where no credentials were compromised. Disabling email disrupts business. All phishing incidents, regardless of outcome, require security reporting and documentation."
+      }
+    ]
+  },
+  {
+    id: "insider-threat",
+    icon: "👁️",
+    severity: "med",
+    title: "Suspected Insider Threat",
+    desc: "DLP tool alerts on a user transferring large volumes of sensitive data to a personal USB drive.",
+    timeline: [
+      { time: "16:20", text: "DLP alert: user jsmith copied 4.2GB to USB drive (unapproved device) from HR shared drive.", badge: "alert" },
+      { time: "16:22", text: "SIEM shows jsmith accessed 847 files in 12 minutes — far above normal baseline.", badge: "warn" },
+      { time: "16:25", text: "HR confirms jsmith gave resignation notice 2 days ago. Last day is Friday.", badge: "info" },
+      { time: "16:28", text: "jsmith is currently logged in and active.", badge: "alert" }
+    ],
+    steps: [
+      {
+        q: "Step 1: jsmith is currently logged in. What is your immediate action?",
+        actions: [
+          { icon: "📋", text: "Do NOT alert jsmith — escalate to Security Lead, HR, and Legal immediately before taking any action", correct: true },
+          { icon: "🔒", text: "Immediately disable jsmith's account and revoke all access", correct: false },
+          { icon: "💬", text: "Call jsmith and ask them to explain what they were doing", correct: false },
+          { icon: "🚨", text: "Confront jsmith in person at their desk", correct: false }
+        ],
+        correct_fb: "Correct. Insider threat cases require HR and Legal involvement before IT acts. Disabling the account without authorization could expose the company to legal risk. Alerting the employee tips them off and allows evidence destruction.",
+        wrong_fb: "Insider threats must involve HR and Legal from the start. Acting unilaterally (disabling account, confronting) without authorization can create legal liability and may tip the employee off to destroy evidence."
+      },
+      {
+        q: "Step 2: HR/Legal authorized you to preserve evidence. What do you do?",
+        actions: [
+          { icon: "🔍", text: "Preserve DLP logs, SIEM logs, USB device ID, and a forensic image of the workstation without alerting the user", correct: true },
+          { icon: "🗑️", text: "Immediately delete the files jsmith copied as a remediation action", correct: false },
+          { icon: "📤", text: "Email jsmith's manager with all the log details", correct: false },
+          { icon: "🖨️", text: "Print the DLP alert and put it in jsmith's HR file manually", correct: false }
+        ],
+        correct_fb: "Correct. Evidence preservation is critical for any potential legal action. Preserve logs in their original format, capture the USB device identifier (for tracking), and create a forensic image of the workstation. All must be preserved in original form.",
+        wrong_fb: "Deleting files destroys evidence. Broad email distribution of investigation details violates confidentiality. Chain of custody for digital evidence means preserving it in original form — logs, device IDs, forensic image."
+      },
+      {
+        q: "Step 3: What is the correct offboarding action for jsmith on their last day?",
+        actions: [
+          { icon: "✅", text: "Coordinate with HR for controlled, immediate access revocation at end of last day, with IT present during equipment return and account audit", correct: true },
+          { icon: "🚪", text: "Let them leave naturally — removing access on their last day is enough", correct: false },
+          { icon: "🔑", text: "Let jsmith do the exit process themselves and return equipment via mail", correct: false },
+          { icon: "⚡", text: "Revoke all access immediately without coordination with HR", correct: false }
+        ],
+        correct_fb: "Correct. Offboarding a suspected insider threat requires a coordinated approach: IT present at equipment return, immediate account revocation at or before last day, and a full audit of access activity. HR leads the process.",
+        wrong_fb: "Uncoordinated or self-service offboarding for a suspected insider threat is a significant risk. IT must be present at equipment return and coordinate with HR on the exact timing of access revocation."
+      }
+    ]
+  }
+];
+
+const state = { screen: 'home', scenario: null, stepIdx: 0, selected: null, revealed: false, score: 0, correct: 0 };
+
+function startScenario(id) {
+  state.scenario = scenarios.find(s => s.id === id);
+  state.stepIdx = 0; state.selected = null; state.revealed = false; state.score = 0; state.correct = 0;
+  state.screen = 'incident';
+  render();
+}
+
+function selectAction(i) { if (state.revealed) return; state.selected = i; render(); }
+
+function submitAction() {
+  if (state.selected === null) return;
+  const step = state.scenario.steps[state.stepIdx];
+  const act = step.actions[state.selected];
+  state.revealed = true;
+  if (act.correct) { state.correct++; state.score += 100; }
+  render();
+}
+
+function nextStep() {
+  if (state.stepIdx + 1 >= state.scenario.steps.length) { state.screen = 'results'; }
+  else { state.stepIdx++; state.selected = null; state.revealed = false; }
+  render();
+}
+
+function goHome() { state.screen = 'home'; render(); }
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'home') app.innerHTML = renderHome();
+  else if (state.screen === 'incident') app.innerHTML = renderIncident();
+  else app.innerHTML = renderResults();
+}
+
+function renderHome() {
+  return `<div style="animation:fadeUp 0.3s ease">
+    <div class="home-banner">
+      <div class="home-title">🛡️ Security Scenarios</div>
+      <div class="home-sub">Respond to live security incidents. Each scenario puts you in the responder seat — make the right call under pressure and learn the correct IR procedure.</div>
+      <div class="threat-ticker"><div class="ticker-dot"></div> Threat monitoring active · 3 scenarios loaded</div>
+    </div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Active Scenarios</div>
+    <div class="scenarios-grid">
+      ${scenarios.map(sc => `<div class="sc-card" onclick="startScenario('${sc.id}')">
+        <div class="sc-icon">${sc.icon}</div>
+        <div class="sc-sev sev-${sc.severity}">${sc.severity === 'crit' ? '🔴 Critical' : sc.severity === 'high' ? '🟠 High' : '🟡 Medium'}</div>
+        <div class="sc-title">${sc.title}</div>
+        <div class="sc-desc">${sc.desc}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderIncident() {
+  const sc = state.scenario;
+  const step = sc.steps[state.stepIdx];
+  const sevClass = sc.severity === 'crit' ? 'alert-crit' : 'alert-high';
+  const isCorrect = state.revealed && state.selected !== null && step.actions[state.selected].correct;
+  const correctIdx = step.actions.findIndex(a => a.correct);
+  const prog = ((state.stepIdx) / sc.steps.length) * 100;
+
+  return `<div class="inc-wrap">
+    <div style="background:var(--border);border-radius:4px;height:4px;margin-bottom:20px;overflow:hidden;">
+      <div style="height:4px;background:var(--cyan);border-radius:4px;width:${prog}%;transition:width 0.4s"></div>
+    </div>
+    <div class="alert-banner ${sevClass}">
+      <div class="alert-icon">⚠️</div>
+      <div><div class="alert-title">${sc.title}</div><div class="alert-sub">Step ${state.stepIdx+1} of ${sc.steps.length} · Incident Response</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Incident Timeline</div>
+    <div class="timeline">
+      ${sc.timeline.map(t => `<div class="tl-item">
+        <div class="tl-time">${t.time}</div>
+        <div class="tl-text">${t.text}<span class="tl-badge tb-${t.badge}">${t.badge}</span></div>
+      </div>`).join('')}
+    </div>
+    <div class="action-panel">
+      <div class="action-label">${step.q}</div>
+      ${state.revealed ? `<div class="step-feedback ${isCorrect ? 'sf-good' : 'sf-bad'}">
+        ${isCorrect ? '✅ ' : '❌ '}${isCorrect ? step.correct_fb : step.wrong_fb}
+      </div>` : ''}
+      <div class="actions-grid">
+        ${step.actions.map((a,i) => {
+          let cls = state.selected === i ? 'selected' : '';
+          if (state.revealed) {
+            if (a.correct) cls = 'correct-action';
+            else if (state.selected === i) cls = 'wrong-action';
+          }
+          return `<div class="action-btn ${cls}" onclick="${state.revealed ? '' : 'selectAction('+i+')'}">
+            <span class="action-icon">${a.icon}</span><span>${a.text}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <button class="btn-outline" onclick="goHome()">← Exit</button>
+        ${state.revealed
+          ? `<button class="btn-primary" onclick="nextStep()">${state.stepIdx+1 >= sc.steps.length ? 'See Debrief' : 'Next Step →'}</button>`
+          : `<button class="btn-primary" onclick="submitAction()" ${state.selected===null?'disabled':''}>Execute Action</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderResults() {
+  const sc = state.scenario;
+  const pct = Math.round((state.correct / sc.steps.length) * 100);
+  const grade = pct === 100 ? 'Perfect Response 🏆' : pct >= 66 ? 'Good Instincts 👍' : 'Needs Review 📚';
+  return `<div>
+    <div class="results-card">
+      <div style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;">Incident Closed — Debrief</div>
+      <div class="res-grade" style="color:${pct===100?'#22C55E':pct>=66?'#06B6D4':'#EF4444'}">${pct}%</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:24px;">${grade} · ${state.correct}/${sc.steps.length} correct decisions</div>
+      <div style="font-size:13px;color:var(--muted);background:var(--surface2);border-radius:9px;padding:16px;text-align:left;margin-bottom:24px;line-height:1.7;">
+        <strong style="color:var(--text);">Key Takeaways — ${sc.title}</strong><br>
+        ${sc.id === 'ransomware' ? 'Ransomware IR priority: Isolate → Scope → Escalate → Preserve → Recover. Never reboot infected machines. Formal IRP must be invoked for multi-machine incidents.' :
+          sc.id === 'phishing-campaign' ? 'BEC/Phishing response: Contain financial exposure first → Block sender domain → Purge emails → Review DMARC/SPF. All phishing incidents require security reporting regardless of outcome.' :
+          'Insider threat: HR/Legal must be involved before IT acts. Evidence preservation is key — never alert the subject. Offboarding must be coordinated and supervised.'}
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="startScenario('${sc.id}')">Retry</button>
+        <button class="btn-outline" onclick="goHome()">← All Scenarios</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>

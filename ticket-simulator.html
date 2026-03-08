@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Simulator — IT Practice Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F6F2; --surface: #fff; --surface2: #F0EEE8;
+    --border: #E2DDD4; --text: #1A1816; --muted: #7A7168;
+    --accent: #B85C2A; --accent-light: #FAF0EA;
+    --green: #2E7D52; --green-light: #E8F5EE;
+    --red: #C0392B; --red-light: #FAEBEA;
+    --radius: 10px; --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+  .logo-icon { width: 34px; height: 34px; background: var(--text); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; }
+  .logo-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; }
+  .logo-sep { color: var(--border); margin: 0 4px; }
+  .logo-page { font-size: 14px; color: var(--muted); }
+  .back-btn { padding: 7px 14px; border: 1px solid var(--border); background: transparent; border-radius: 7px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--muted); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .back-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .app { flex: 1; max-width: 860px; margin: 0 auto; width: 100%; padding: 32px 24px; }
+
+  /* HOME */
+  .home { animation: fadeUp 0.3s ease; }
+  .home-header { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 24px; box-shadow: var(--shadow); display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .home-title { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -1px; margin-bottom: 8px; }
+  .home-sub { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 480px; }
+  .diff-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+  .diff-pill { padding: 9px 18px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface2); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .diff-pill:hover { border-color: var(--accent); background: var(--accent-light); }
+  .diff-pill.active { background: var(--text); color: #fff; border-color: var(--text); }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 14px 20px; flex: 1; min-width: 100px; box-shadow: var(--shadow); }
+  .stat-val { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 700; }
+  .stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+  .start-btn { padding: 13px 28px; background: var(--text); color: #fff; border: none; border-radius: 9px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; margin-top: 4px; }
+  .start-btn:hover { opacity: 0.85; }
+
+  /* TICKET VIEW */
+  .ticket-wrap { animation: fadeUp 0.25s ease; }
+  .ticket-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .ticket-id { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; }
+  .timer-badge { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; padding: 6px 14px; background: var(--surface); border: 2px solid var(--border); border-radius: 8px; transition: border-color 0.3s, color 0.3s; }
+  .timer-badge.urgent { border-color: var(--red); color: var(--red); }
+  .priority-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+  .p-high { background: var(--red-light); color: var(--red); }
+  .p-med { background: #FEF3E2; color: #B85C2A; }
+  .p-low { background: var(--green-light); color: var(--green); }
+
+  .ticket-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin-bottom: 16px; }
+  .ticket-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+  .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .ticket-from { font-size: 13px; font-weight: 600; }
+  .ticket-time { font-size: 12px; color: var(--muted); }
+  .ticket-subject { font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 14px; }
+  .ticket-body { font-size: 14px; line-height: 1.75; color: #3a3530; background: var(--surface2); border-radius: 8px; padding: 16px 18px; border: 1px solid var(--border); }
+  .ticket-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; }
+  .t-tag { font-size: 11px; padding: 3px 9px; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; color: var(--muted); }
+
+  /* RESPONSE AREA */
+  .response-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+  .response-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .response-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .response-opt { display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 9px; cursor: pointer; font-size: 13.5px; line-height: 1.5; transition: all 0.15s; }
+  .response-opt:hover { border-color: var(--accent); background: var(--accent-light); }
+  .response-opt.selected { border-color: var(--text); background: var(--text); color: #fff; }
+  .response-opt.selected .opt-letter { background: rgba(255,255,255,0.2); color: #fff; }
+  .opt-letter { width: 24px; height: 24px; border-radius: 6px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; transition: all 0.15s; }
+  .submit-row { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-primary { padding: 10px 24px; background: var(--text); color: #fff; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; }
+  .btn-outline { padding: 10px 20px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--text); }
+  .btn-outline:hover { background: var(--surface2); }
+
+  /* FEEDBACK */
+  .feedback-card { border-radius: var(--radius); padding: 24px; margin-bottom: 16px; animation: fadeUp 0.25s ease; }
+  .feedback-card.correct { background: var(--green-light); border: 1.5px solid #b2ddc4; }
+  .feedback-card.wrong { background: var(--red-light); border: 1.5px solid #e8b4b0; }
+  .fb-title { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .fb-body { font-size: 13.5px; line-height: 1.7; }
+  .fb-points { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-top: 10px; }
+
+  /* RESULTS */
+  .results-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px 32px; text-align: center; box-shadow: var(--shadow); animation: fadeUp 0.3s ease; }
+  .results-score { font-family: 'Sora', sans-serif; font-size: 56px; font-weight: 700; letter-spacing: -2px; margin-bottom: 4px; }
+  .results-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+  .results-breakdown { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 440px; margin: 0 auto 28px; }
+  .rb-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 16px 12px; }
+  .rb-val { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 700; }
+  .rb-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  /* PROGRESS */
+  .progress-bar-wrap { background: var(--border); border-radius: 4px; height: 4px; margin-bottom: 20px; }
+  .progress-bar-fill { height: 4px; background: var(--accent); border-radius: 4px; transition: width 0.4s ease; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) { .app { padding: 20px 16px; } header { padding: 14px 18px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">IT</div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span class="logo-name">IT Practice Hub</span>
+      <span class="logo-sep">›</span>
+      <span class="logo-page">Ticket Simulator</span>
+    </div>
+  </div>
+  <a href="index.html" class="back-btn">← Back to Hub</a>
+</header>
+
+<div class="app" id="app"></div>
+
+<script>
+const tickets = [
+  {
+    id: "TKT-1042", priority: "high", user: "Maria Santos", avatar: "👩‍💼", dept: "Finance", time: "9 mins ago",
+    subject: "Cannot access shared drive — urgent month-end close",
+    body: "Hi IT, I need urgent help. I can't access the \\\\finance-server\\shared drive at all this morning. I was able to access it yesterday without issues. My colleagues can still access it. I get an error that says 'Network path not found'. This is blocking me from completing month-end close reports. Please help ASAP.",
+    tags: ["Network Drive", "Permissions", "Urgent"],
+    options: [
+      { text: "Ask her to reboot her PC first, then try again and report back.", correct: false, feedback: "Rebooting is a valid step but shouldn't be the first response to a network path error — it doesn't address the likely cause and wastes time given the urgency." },
+      { text: "Check her network connectivity, verify her AD group membership for the share, re-map the drive, and confirm UNC path is reachable.", correct: true, feedback: "Correct. Since colleagues can access it, the issue is user-specific. The right approach is to verify network access, check she's still in the correct AD security group, then re-map the drive manually." },
+      { text: "Escalate immediately to the network team without investigating.", correct: false, feedback: "Premature escalation. A user-specific network drive issue is well within helpdesk scope — check group membership and drive mapping before escalating." },
+      { text: "Ask her to wait — you'll look into it when you have time.", correct: false, feedback: "This is a high priority ticket with business impact. Telling an urgent user to wait without an ETA or acknowledgment is poor SLA practice." }
+    ]
+  },
+  {
+    id: "TKT-1043", priority: "med", user: "James Reyes", avatar: "👨‍💻", dept: "Operations", time: "22 mins ago",
+    subject: "Outlook keeps crashing when opening attachments",
+    body: "Every time I try to open a PDF or Word attachment in Outlook it freezes for about 30 seconds and then crashes. I've tried restarting Outlook multiple times but the problem comes back. It started happening after Tuesday's Windows Update. My Outlook version is 2016. Other emails work fine — just crashes on attachments.",
+    tags: ["Outlook", "Crash", "Windows Update"],
+    options: [
+      { text: "Uninstall the latest Windows Update immediately.", correct: false, feedback: "Rolling back updates should be a last resort. Start by investigating whether it's an Outlook profile issue, add-in conflict, or preview handler problem first." },
+      { text: "Run Outlook in Safe Mode to disable add-ins, repair the Office installation, and check the preview handler settings in the Trust Center.", correct: true, feedback: "Correct. The post-update crash pattern points to an add-in conflict or a broken Office component. Safe Mode isolates add-ins, and Trust Center preview handler settings often conflict after updates." },
+      { text: "Tell him to just save attachments to desktop and open them from there.", correct: false, feedback: "This is a workaround, not a resolution. It doesn't fix the underlying issue and leaves the user with a degraded experience. Document it as a temporary measure only." },
+      { text: "Reinstall Windows from scratch.", correct: false, feedback: "Extremely disproportionate response. A single application crash caused by an update should never escalate to an OS reinstall without exhausting all standard troubleshooting steps first." }
+    ]
+  },
+  {
+    id: "TKT-1044", priority: "high", user: "System Alert", avatar: "🤖", dept: "Automated — Security", time: "4 mins ago",
+    subject: "Multiple failed login attempts detected — user account jlim@company.com",
+    body: "Automated security alert: 47 failed login attempts detected for account jlim@company.com in the past 10 minutes from IP address 185.220.101.45. This IP is flagged in threat intelligence feeds as a known Tor exit node. The account is currently not locked. User has not been notified. No successful logins detected yet.",
+    tags: ["Security", "Brute Force", "Active Threat"],
+    options: [
+      { text: "Send an email to jlim@company.com to let them know someone is trying to access their account.", correct: false, feedback: "Notifying the user is part of the process but should not be the first action. The account must be secured immediately — 47 attempts from a Tor node is an active attack." },
+      { text: "Immediately lock the account, block the IP at the perimeter firewall, notify the security team, and contact the user through a verified channel to reset credentials and enable MFA.", correct: true, feedback: "Correct. This is an active brute force attack from a known malicious IP. The immediate priority is account lockdown, then perimeter block, then incident escalation. Contacting the user via phone (not email) ensures they're aware without the attacker intercepting." },
+      { text: "Wait to see if any successful logins occur before taking action.", correct: false, feedback: "Waiting for a successful breach before acting is a critical security failure. By then, the attacker has access. Proactive lockdown is always the correct posture." },
+      { text: "Increase the account lockout threshold so the user doesn't get locked out.", correct: false, feedback: "This is the opposite of what should be done. Raising the threshold makes the account more vulnerable, not less. Lock it now." }
+    ]
+  },
+  {
+    id: "TKT-1045", priority: "low", user: "Ana Villanueva", avatar: "👩‍🔬", dept: "HR", time: "1 hr ago",
+    subject: "New laptop setup — please install standard software",
+    body: "Hi, I just received my new laptop (Asset Tag: LT-2847) from the IT room. Could you please set it up for me? I need Microsoft Office, Adobe Acrobat Reader, our VPN client (GlobalProtect), and Zoom. I also need it joined to the domain so I can log in with my company credentials. My old laptop will be returned to IT. Thank you!",
+    tags: ["Provisioning", "New Device", "Domain Join"],
+    options: [
+      { text: "Tell her to Google and install the software herself to save IT time.", correct: false, feedback: "Unacceptable. Directing users to install software themselves creates security risks, licensing issues, and inconsistent configurations. IT owns device provisioning." },
+      { text: "Follow the standard onboarding checklist: domain join, deploy software via management tool (SCCM/Intune), configure VPN profile, verify login, collect old device and wipe it.", correct: true, feedback: "Correct. This is a standard provisioning request. Use your MDM/deployment tools for consistency, verify everything works before closing the ticket, and ensure the old asset is collected and wiped per offboarding policy." },
+      { text: "Only install what she asked for and skip domain join — she can log in with a local account.", correct: false, feedback: "Skipping domain join prevents centralized management, policy enforcement, and SSO access to company resources. All company devices must be domain/Azure AD joined." },
+      { text: "Schedule it for next week as it's not urgent.", correct: false, feedback: "While low priority, an unprovisioned laptop blocks the user's productivity. Low priority means it can wait in the queue — not that it should be deferred for a week without communication." }
+    ]
+  },
+  {
+    id: "TKT-1046", priority: "med", user: "Carlos Mendoza", avatar: "👨‍💼", dept: "Sales", time: "35 mins ago",
+    subject: "VPN connects but I can't reach internal systems",
+    body: "My VPN connects successfully (shows 'Connected' in GlobalProtect) but I can't access any of our internal tools — the CRM, intranet, or file server. I can still browse the internet fine while connected. This started today, it was working fine last week. I'm currently working from a hotel in Singapore. My laptop is company-issued Windows 11.",
+    tags: ["VPN", "Remote Access", "Split Tunnel"],
+    options: [
+      { text: "Tell him to disconnect VPN since he can browse the internet anyway.", correct: false, feedback: "He needs VPN for internal resources. Removing it entirely doesn't solve the problem and leaves company traffic unprotected." },
+      { text: "Investigate split tunneling config, verify he's assigned the correct VPN gateway, check if his IP is in a geo-blocked region, and test internal DNS resolution while connected.", correct: true, feedback: "Correct. VPN connected but no internal access typically points to a routing/split-tunnel issue, wrong gateway assignment, or DNS not resolving internal hostnames. Geographic policy rules may also block certain regions from certain resources." },
+      { text: "Ask him to reinstall GlobalProtect immediately.", correct: false, feedback: "Reinstalling is premature. A config issue or policy change is far more likely — investigate first before reinstalling the VPN client." },
+      { text: "Escalate to the network team without any initial investigation.", correct: false, feedback: "Some initial investigation is expected at the helpdesk level. Gather the symptoms, check obvious causes like DNS and routing, before escalating with findings." }
+    ]
+  },
+  {
+    id: "TKT-1047", priority: "high", user: "Director Tan", avatar: "👔", dept: "Executive", time: "8 mins ago",
+    subject: "Laptop completely frozen — presenting to board in 45 minutes",
+    body: "My laptop is completely frozen. Mouse isn't moving, keyboard does nothing, screen is stuck. I am presenting to the board of directors in 45 minutes and all my slides are on this machine. I also don't have a backup copy. This is extremely urgent. Please help immediately.",
+    tags: ["Critical", "Executive", "Frozen PC"],
+    options: [
+      { text: "Log into his OneDrive/SharePoint remotely to check for an auto-saved copy of the presentation while simultaneously dispatching someone with a backup laptop.", correct: true, feedback: "Correct and efficient. Address both the immediate problem (frozen laptop) and the business need (presentation backup) in parallel. Auto-recovery files and OneDrive sync may have saved a copy. A loaner device is the fastest path to getting him operational." },
+      { text: "Tell him to hold the power button for 10 seconds to force restart.", correct: false, feedback: "A force restart is the right technical step, but given the context (board presentation, no backup), you should also be actively working on a recovery plan simultaneously — not just sending one instruction and waiting." },
+      { text: "Ask him to submit a proper ticket through the portal so it can be tracked.", correct: false, feedback: "This is an executive with a critical business deadline in 45 minutes. Redirecting to the portal is tone-deaf. Handle it now and document it after." },
+      { text: "Advise him to reschedule the presentation.", correct: false, feedback: "Telling an executive to reschedule a board meeting is not a helpdesk solution. It is never appropriate to suggest this without exhausting every technical recovery option first." }
+    ]
+  }
+];
+
+const state = { screen: 'home', difficulty: 'all', sessionTickets: [], currentIdx: 0, selectedOpt: null, showFeedback: false, score: 0, correct: 0, timers: {}, elapsed: 0, timerInterval: null };
+
+function shuffleArr(a) { return [...a].sort(() => Math.random() - 0.5); }
+function getTickets() {
+  let t = [...tickets];
+  if (state.difficulty === 'easy') t = t.filter(x => x.priority === 'low');
+  if (state.difficulty === 'hard') t = t.filter(x => x.priority === 'high');
+  return shuffleArr(t).slice(0, 5);
+}
+
+function startSession() {
+  state.screen = 'ticket';
+  state.sessionTickets = getTickets();
+  state.currentIdx = 0;
+  state.selectedOpt = null;
+  state.showFeedback = false;
+  state.score = 0;
+  state.correct = 0;
+  state.elapsed = 0;
+  state.timers = {};
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    if (!state.showFeedback) {
+      state.elapsed++;
+      const el = document.getElementById('timer');
+      if (el) {
+        const mins = String(Math.floor(state.elapsed / 60)).padStart(2,'0');
+        const secs = String(state.elapsed % 60).padStart(2,'0');
+        el.textContent = `${mins}:${secs}`;
+        el.classList.toggle('urgent', state.elapsed > 180);
+      }
+    }
+  }, 1000);
+  render();
+}
+
+function selectOpt(i) {
+  if (state.showFeedback) return;
+  state.selectedOpt = i;
+  render();
+}
+
+function submitAnswer() {
+  if (state.selectedOpt === null) return;
+  const t = state.sessionTickets[state.currentIdx];
+  const opt = t.options[state.selectedOpt];
+  state.showFeedback = true;
+  if (opt.correct) {
+    state.correct++;
+    const timeBonus = Math.max(0, 120 - state.elapsed) * 2;
+    state.score += 100 + timeBonus;
+  }
+  state.timers[state.currentIdx] = state.elapsed;
+  render();
+}
+
+function nextTicket() {
+  if (state.currentIdx + 1 >= state.sessionTickets.length) {
+    clearInterval(state.timerInterval);
+    state.screen = 'results';
+  } else {
+    state.currentIdx++;
+    state.selectedOpt = null;
+    state.showFeedback = false;
+    state.elapsed = 0;
+  }
+  render();
+}
+
+function goHome() { clearInterval(state.timerInterval); state.screen = 'home'; render(); }
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'home') app.innerHTML = renderHome();
+  else if (state.screen === 'ticket') app.innerHTML = renderTicket();
+  else if (state.screen === 'results') app.innerHTML = renderResults();
+}
+
+function renderHome() {
+  const diffs = ['all', 'easy', 'hard'];
+  return `<div class="home">
+    <div class="home-header">
+      <div>
+        <div class="home-title">🎫 Ticket Simulator</div>
+        <div class="home-sub">Receive realistic helpdesk tickets and choose the best response. Build your ticket-handling instincts — prioritization, communication, and technical judgment.</div>
+        <div class="diff-pills">
+          ${diffs.map(d => `<button class="diff-pill ${state.difficulty===d?'active':''}" onclick="setDiff('${d}')">${d==='all'?'All Priorities':d==='easy'?'Low Priority':'High Priority'}</button>`).join('')}
+        </div>
+      </div>
+      <button class="start-btn" onclick="startSession()">Start Session →</button>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-val">5</div><div class="stat-lbl">Tickets / Session</div></div>
+      <div class="stat-box"><div class="stat-val">${tickets.length}</div><div class="stat-lbl">Total Tickets</div></div>
+      <div class="stat-box"><div class="stat-val">4</div><div class="stat-lbl">Options Each</div></div>
+      <div class="stat-box"><div class="stat-val">⏱</div><div class="stat-lbl">Time Bonus</div></div>
+    </div>
+    <div style="font-size:13px;color:var(--muted);padding:4px;line-height:1.6;">Each ticket has one best response. Faster correct answers earn bonus points. Choose wisely — wrong answers show you why the approach fails.</div>
+  </div>`;
+}
+
+function setDiff(d) { state.difficulty = d; render(); }
+
+function renderTicket() {
+  const t = state.sessionTickets[state.currentIdx];
+  const progress = ((state.currentIdx) / state.sessionTickets.length) * 100;
+  const pClass = t.priority === 'high' ? 'p-high' : t.priority === 'med' ? 'p-med' : 'p-low';
+  const pLabel = t.priority === 'high' ? '🔴 High' : t.priority === 'med' ? '🟡 Medium' : '🟢 Low';
+  const letters = ['A','B','C','D'];
+  const opts = t.options;
+
+  let feedbackHtml = '';
+  if (state.showFeedback) {
+    const chosen = opts[state.selectedOpt];
+    feedbackHtml = `<div class="feedback-card ${chosen.correct ? 'correct' : 'wrong'}">
+      <div class="fb-title">${chosen.correct ? '✅ Correct Response' : '❌ Not the Best Approach'}</div>
+      <div class="fb-body">${chosen.feedback}</div>
+      ${chosen.correct ? `<div class="fb-points">+100 pts ${state.elapsed < 120 ? `+ ${(120-state.elapsed)*2} time bonus` : ''}</div>` : ''}
+    </div>`;
+  }
+
+  return `<div class="ticket-wrap">
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${progress}%"></div></div>
+    <div class="ticket-meta">
+      <span class="ticket-id">${t.id} · Ticket ${state.currentIdx+1} of ${state.sessionTickets.length}</span>
+      <span class="timer-badge" id="timer">00:00</span>
+    </div>
+    <div class="ticket-card">
+      <div class="ticket-top">
+        <div class="user-avatar">${t.avatar}</div>
+        <div>
+          <div class="ticket-from">${t.user} <span style="color:var(--muted);font-weight:400;">· ${t.dept}</span></div>
+          <div class="ticket-time">${t.time}</div>
+        </div>
+        <div style="margin-left:auto"><span class="priority-badge ${pClass}">${pLabel}</span></div>
+      </div>
+      <div class="ticket-subject">${t.subject}</div>
+      <div class="ticket-body">${t.body}</div>
+      <div class="ticket-tags">${t.tags.map(tg=>`<span class="t-tag">${tg}</span>`).join('')}</div>
+    </div>
+    ${feedbackHtml}
+    <div class="response-section">
+      <div class="response-label">How do you respond?</div>
+      <div class="response-options">
+        ${opts.map((o,i) => `
+          <div class="response-opt ${state.selectedOpt===i?'selected':''} ${state.showFeedback&&o.correct?'correct-highlight':''}" onclick="${state.showFeedback?'':'selectOpt('+i+')'}">
+            <span class="opt-letter">${letters[i]}</span>
+            <span>${o.text}</span>
+          </div>`).join('')}
+      </div>
+      <div class="submit-row">
+        <button class="btn-outline" onclick="goHome()">← Exit</button>
+        ${state.showFeedback
+          ? `<button class="btn-primary" onclick="nextTicket()">${state.currentIdx+1 >= state.sessionTickets.length ? 'See Results' : 'Next Ticket →'}</button>`
+          : `<button class="btn-primary" onclick="submitAnswer()" ${state.selectedOpt===null?'disabled':''}>Submit Response</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderResults() {
+  const pct = Math.round((state.correct / state.sessionTickets.length) * 100);
+  const grade = pct >= 80 ? '🏆 Excellent' : pct >= 60 ? '👍 Good' : '📚 Keep Practicing';
+  return `<div>
+    <div class="results-card">
+      <div style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;">Session Complete</div>
+      <div class="results-score">${pct}%</div>
+      <div class="results-sub">${grade} · ${state.correct} of ${state.sessionTickets.length} correct · ${state.score} pts</div>
+      <div class="results-breakdown">
+        <div class="rb-item"><div class="rb-val">${state.correct}</div><div class="rb-lbl">Correct</div></div>
+        <div class="rb-item"><div class="rb-val">${state.sessionTickets.length - state.correct}</div><div class="rb-lbl">Missed</div></div>
+        <div class="rb-item"><div class="rb-val">${state.score}</div><div class="rb-lbl">Score</div></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="startSession()">Play Again</button>
+        <button class="btn-outline" onclick="goHome()">← Home</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>

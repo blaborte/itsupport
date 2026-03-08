@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Troubleshooting Tree</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE8;
+    --border: #E2DDD4;
+    --text: #1A1816;
+    --text-muted: #7A7168;
+    --accent-net: #1B6CA8;
+    --accent-hw: #B85C2A;
+    --accent-os: #2E7D52;
+    --accent-acc: #7B3FA0;
+    --accent-sec: #C0392B;
+    --accent-active: #1A1816;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--text);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    letter-spacing: -1px;
+  }
+  .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-ghost {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+  /* LAYOUT */
+  .app-body {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 65px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    padding: 0 8px;
+  }
+  .cat-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .cat-btn:hover { background: var(--surface2); }
+  .cat-btn.active { background: var(--text); color: #fff; }
+  .cat-btn.active .cat-dot { background: #fff !important; }
+  .cat-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* DIVIDER */
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 8px;
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+  }
+
+  /* BREADCRUMB */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .breadcrumb span { cursor: pointer; }
+  .breadcrumb span:hover { color: var(--text); text-decoration: underline; }
+  .breadcrumb .sep { opacity: 0.4; }
+  .breadcrumb .current { color: var(--text); font-weight: 500; }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.25s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    color: #fff;
+  }
+  .question-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .question-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 22px;
+    line-height: 1.5;
+  }
+
+  /* OPTIONS */
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s;
+    line-height: 1.4;
+  }
+  .option-btn:hover {
+    border-color: var(--accent-active);
+    background: #fff;
+    transform: translateX(3px);
+    box-shadow: var(--shadow);
+  }
+  .option-letter {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option-btn:hover .option-letter {
+    background: var(--text);
+    color: #fff;
+  }
+
+  /* RESOLUTION CARD */
+  .resolution-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.25s ease;
+  }
+  .resolution-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .res-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .res-icon.success { background: #E8F5EE; }
+  .res-icon.warning { background: #FEF3E2; }
+  .resolution-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    line-height: 1.3;
+  }
+  .resolution-body {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .steps-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .steps-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    padding: 11px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--text);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .command-box {
+    background: #1A1816;
+    color: #7CFC8A;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 12px 0 20px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+  .cmd-comment { color: #666; }
+  .cmd-prompt { color: #aaa; }
+
+  .res-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    padding: 10px 20px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-outline {
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: var(--text); }
+
+  /* PATH HISTORY */
+  .path-history {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .path-history-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .path-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .path-tag {
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .path-tag.answer {
+    color: var(--text);
+    font-weight: 500;
+    background: #fff;
+  }
+
+  /* HOME SCREEN */
+  .home-screen {
+    animation: fadeUp 0.3s ease;
+  }
+  .home-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .home-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 30px;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .home-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .cats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .cat-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    cursor: pointer;
+    transition: all 0.18s;
+    box-shadow: var(--shadow);
+  }
+  .cat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--card-accent);
+  }
+  .cat-card-icon {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
+  .cat-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .cat-card-count {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .cat-card-bar {
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 14px;
+    opacity: 0.5;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .main { padding: 20px 18px; }
+    header { padding: 14px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">IT</div>
+    <div>
+      <div class="logo-text">TroubleTree</div>
+      <div class="logo-sub">IT Support Troubleshooting Guide</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-ghost" id="homeBtn">⌂ Home</button>
+    <button class="btn-ghost" id="resetBtn">↺ Reset</button>
+  </div>
+</header>
+
+<div class="app-body">
+  <aside class="sidebar">
+    <div class="sidebar-label">Categories</div>
+    <button class="cat-btn" data-cat="networking" onclick="startCategory('networking')">
+      <span class="cat-dot" style="background:#1B6CA8"></span> Networking
+    </button>
+    <button class="cat-btn" data-cat="hardware" onclick="startCategory('hardware')">
+      <span class="cat-dot" style="background:#B85C2A"></span> Hardware
+    </button>
+    <button class="cat-btn" data-cat="os" onclick="startCategory('os')">
+      <span class="cat-dot" style="background:#2E7D52"></span> OS & Software
+    </button>
+    <button class="cat-btn" data-cat="accounts" onclick="startCategory('accounts')">
+      <span class="cat-dot" style="background:#7B3FA0"></span> Accounts & Access
+    </button>
+    <button class="cat-btn" data-cat="security" onclick="startCategory('security')">
+      <span class="cat-dot" style="background:#C0392B"></span> Security
+    </button>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Session</div>
+    <div style="padding:0 8px;font-size:12.5px;color:var(--text-muted);line-height:1.6;">
+      <div id="session-stat">No active session</div>
+    </div>
+  </aside>
+
+  <main class="main" id="mainContent">
+    <!-- rendered by JS -->
+  </main>
+</div>
+
+<script>
+// ===================== DATA =====================
+const categories = {
+  networking: {
+    name: "Networking & Connectivity",
+    icon: "🌐",
+    color: "#1B6CA8",
+    bg: "#E8F2FA",
+    trees: [
+      {
+        id: "no-internet",
+        title: "No Internet Access",
+        hint: "User reports they cannot browse the web or access online services.",
+        question: "Can the user ping the default gateway (e.g., 192.168.1.1)?",
+        options: [
+          {
+            label: "Yes — gateway is reachable",
+            next: {
+              question: "Can the user ping an external IP like 8.8.8.8?",
+              hint: "This tests if the issue is DNS or upstream.",
+              options: [
+                {
+                  label: "Yes — external IP reachable",
+                  next: {
+                    question: "Can the user ping a domain name like google.com?",
+                    options: [
+                      { label: "No — domain not resolving", resolve: "dns_issue" },
+                      { label: "Yes — resolves fine", resolve: "browser_issue" }
+                    ]
+                  }
+                },
+                { label: "No — external IP not reachable", resolve: "isp_or_router" }
+              ]
+            }
+          },
+          {
+            label: "No — gateway unreachable",
+            next: {
+              question: "Is the network adapter showing as connected?",
+              options: [
+                { label: "No — adapter shows disconnected", resolve: "adapter_disconnect" },
+                { label: "Yes — adapter says connected", resolve: "ip_config_issue" }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        id: "slow-network",
+        title: "Slow Network Speed",
+        hint: "User reports unusually slow internet or network file transfers.",
+        question: "Is the slowness affecting all devices on the network or just one?",
+        options: [
+          {
+            label: "All devices affected",
+            next: {
+              question: "Is this a wired or wireless connection issue?",
+              options: [
+                { label: "Wired and wireless both slow", resolve: "isp_bandwidth" },
+                { label: "Wireless only", resolve: "wifi_congestion" }
+              ]
+            }
+          },
+          {
+            label: "Only one device",
+            next: {
+              question: "Has the device recently had updates or new software installed?",
+              options: [
+                { label: "Yes — after recent changes", resolve: "background_traffic" },
+                { label: "No — nothing changed", resolve: "nic_driver" }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  hardware: {
+    name: "Hardware & Peripherals",
+    icon: "🖥️",
+    color: "#B85C2A",
+    bg: "#FAF0EA",
+    trees: [
+      {
+        id: "monitor-no-display",
+        title: "Monitor Has No Display",
+        hint: "Screen is black or showing no signal.",
+        question: "Is the monitor power LED on?",
+        options: [
+          {
+            label: "No — LED is off",
+            next: {
+              question: "Is the power cable securely connected to both monitor and outlet?",
+              options: [
+                { label: "No — cable was loose", resolve: "monitor_power_cable" },
+                { label: "Yes — cable is secure", resolve: "monitor_dead" }
+              ]
+            }
+          },
+          {
+            label: "Yes — LED is on but no image",
+            next: {
+              question: "Does the monitor show 'No Signal' message?",
+              options: [
+                {
+                  label: "Yes — shows No Signal",
+                  next: {
+                    question: "Is the correct video input source selected on the monitor?",
+                    options: [
+                      { label: "No — wrong input selected", resolve: "wrong_input" },
+                      { label: "Yes — correct input", resolve: "gpu_or_cable" }
+                    ]
+                  }
+                },
+                { label: "No — completely black", resolve: "monitor_panel" }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        id: "printer-not-printing",
+        title: "Printer Not Printing",
+        hint: "Print jobs are sent but nothing comes out.",
+        question: "Does the printer show any error lights or messages?",
+        options: [
+          {
+            label: "Yes — error indicated",
+            next: {
+              question: "What type of error is shown?",
+              options: [
+                { label: "Paper jam", resolve: "paper_jam" },
+                { label: "Low ink / toner", resolve: "low_ink" },
+                { label: "Other error code", resolve: "printer_error_code" }
+              ]
+            }
+          },
+          {
+            label: "No — printer looks normal",
+            next: {
+              question: "Is the print queue showing the job as pending or stuck?",
+              options: [
+                { label: "Yes — job stuck in queue", resolve: "clear_print_queue" },
+                { label: "No — queue appears empty", resolve: "printer_driver" }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  os: {
+    name: "OS & Software",
+    icon: "💻",
+    color: "#2E7D52",
+    bg: "#E8F5EE",
+    trees: [
+      {
+        id: "slow-pc",
+        title: "PC Running Slowly",
+        hint: "User reports the computer is sluggish or unresponsive.",
+        question: "Is the slowness happening immediately after startup or only after extended use?",
+        options: [
+          {
+            label: "Right from startup",
+            next: {
+              question: "Are there many programs in the startup list?",
+              options: [
+                { label: "Yes — lots of startup items", resolve: "startup_items" },
+                { label: "No — startup is clean", resolve: "low_ram_or_drive" }
+              ]
+            }
+          },
+          {
+            label: "After extended use",
+            next: {
+              question: "Does Task Manager show high CPU or RAM usage?",
+              options: [
+                { label: "Yes — high CPU", resolve: "cpu_hog_process" },
+                { label: "Yes — high RAM", resolve: "memory_leak" },
+                { label: "No — resources look normal", resolve: "disk_health" }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        id: "app-crash",
+        title: "Application Keeps Crashing",
+        hint: "A specific application closes unexpectedly.",
+        question: "Does the crash happen immediately on launch or after some time?",
+        options: [
+          {
+            label: "Immediately on launch",
+            next: {
+              question: "Was the app recently installed or updated?",
+              options: [
+                { label: "Yes — just installed/updated", resolve: "corrupt_install" },
+                { label: "No — was working before", resolve: "missing_dependency" }
+              ]
+            }
+          },
+          {
+            label: "After some time of use",
+            next: {
+              question: "Does the crash correlate with a specific action?",
+              options: [
+                { label: "Yes — same action triggers it", resolve: "app_bug_workaround" },
+                { label: "No — random timing", resolve: "ram_or_driver" }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  accounts: {
+    name: "Accounts & Access",
+    icon: "🔑",
+    color: "#7B3FA0",
+    bg: "#F3EBF9",
+    trees: [
+      {
+        id: "cant-login",
+        title: "User Can't Log In",
+        hint: "User is unable to authenticate to their account.",
+        question: "What error message is the user receiving?",
+        options: [
+          {
+            label: "Incorrect username or password",
+            next: {
+              question: "Has the user recently changed their password?",
+              options: [
+                { label: "Yes — just changed it", resolve: "password_sync" },
+                {
+                  label: "No — same password as always",
+                  next: {
+                    question: "Is Caps Lock on?",
+                    options: [
+                      { label: "Yes!", resolve: "caps_lock" },
+                      { label: "No — not Caps Lock", resolve: "password_reset" }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          { label: "Account locked out", resolve: "account_lockout" },
+          { label: "Account disabled / expired", resolve: "account_disabled" },
+          { label: "MFA / 2FA not working", resolve: "mfa_issue" }
+        ]
+      },
+      {
+        id: "no-permission",
+        title: "Access Denied to Resource",
+        hint: "User can log in but can't access a file, folder, or system.",
+        question: "What resource is the user trying to access?",
+        options: [
+          {
+            label: "A shared network folder",
+            next: {
+              question: "Has the user ever had access before?",
+              options: [
+                { label: "Yes — had access previously", resolve: "permission_revoked" },
+                { label: "No — new request", resolve: "permission_grant" }
+              ]
+            }
+          },
+          { label: "A specific application", resolve: "app_role_assignment" },
+          { label: "A website or portal", resolve: "sso_or_vpn" }
+        ]
+      }
+    ]
+  },
+  security: {
+    name: "Security",
+    icon: "🛡️",
+    color: "#C0392B",
+    bg: "#FAEBEA",
+    trees: [
+      {
+        id: "malware-suspected",
+        title: "Suspected Malware Infection",
+        hint: "User reports unusual behavior suggesting malware.",
+        question: "What unusual behavior is the user reporting?",
+        options: [
+          {
+            label: "Random pop-ups and ads",
+            next: {
+              question: "Are pop-ups appearing in the browser or outside of it?",
+              options: [
+                { label: "Only in browser", resolve: "browser_adware" },
+                { label: "Outside browser too", resolve: "adware_full" }
+              ]
+            }
+          },
+          { label: "PC very slow + high disk usage", resolve: "malware_scan" },
+          { label: "Files encrypted or renamed", resolve: "ransomware_response" },
+          { label: "Suspicious outbound network traffic", resolve: "isolate_network" }
+        ]
+      },
+      {
+        id: "phishing",
+        title: "User Clicked a Phishing Link",
+        hint: "User clicked a suspicious link in an email or message.",
+        question: "Did the user enter any credentials or download anything after clicking?",
+        options: [
+          {
+            label: "Yes — entered credentials",
+            next: {
+              question: "Were these corporate or personal credentials?",
+              options: [
+                { label: "Corporate credentials", resolve: "credential_compromise" },
+                { label: "Personal credentials", resolve: "personal_creds_phish" }
+              ]
+            }
+          },
+          { label: "Yes — downloaded a file", resolve: "malware_download" },
+          { label: "No — just clicked, nothing else", resolve: "phish_monitoring" }
+        ]
+      }
+    ]
+  }
+};
+
+// ===================== RESOLUTIONS =====================
+const resolutions = {
+  dns_issue: {
+    title: "DNS Resolution Issue",
+    icon: "🔧", type: "success",
+    summary: "The issue is DNS — the gateway and internet are reachable, but domain names aren't resolving.",
+    steps: [
+      "Open Command Prompt and run: ipconfig /flushdns",
+      "Try switching DNS to a public server (8.8.8.8 or 1.1.1.1) in network adapter settings",
+      "If on a corporate network, check if the internal DNS server is reachable",
+      "Restart the DNS Client service: services.msc → DNS Client → Restart"
+    ],
+    commands: `<span class="cmd-comment"># Flush DNS cache</span>
+ipconfig /flushdns
+
+<span class="cmd-comment"># Test DNS resolution</span>
+nslookup google.com 8.8.8.8
+
+<span class="cmd-comment"># Check DNS settings</span>
+ipconfig /all`
+  },
+  browser_issue: {
+    title: "Browser or Application Issue",
+    icon: "🌐", type: "success",
+    summary: "Network is working fine — the problem is isolated to the browser or a specific application.",
+    steps: [
+      "Clear browser cache and cookies (Ctrl+Shift+Delete)",
+      "Try in a different browser to isolate the issue",
+      "Disable browser extensions one by one",
+      "Check if the specific website is down using downdetector.com",
+      "Reset browser settings to default if needed"
+    ],
+    commands: `<span class="cmd-comment"># Test connectivity from command line</span>
+curl -I https://google.com
+
+<span class="cmd-comment"># Check hosts file for overrides</span>
+notepad C:\\Windows\\System32\\drivers\\etc\\hosts`
+  },
+  isp_or_router: {
+    title: "ISP or Router/Modem Issue",
+    icon: "📡", type: "warning",
+    summary: "Gateway is reachable but external IPs are not — the issue is upstream (ISP or WAN port).",
+    steps: [
+      "Power cycle the modem/router: unplug for 30 seconds, plug back in",
+      "Check if the WAN/Internet LED on the router is solid or blinking abnormally",
+      "Log into the router admin page and check WAN status",
+      "Contact ISP to check for outages in the area",
+      "Check for ISP status page or outage map"
+    ]
+  },
+  adapter_disconnect: {
+    title: "Network Adapter Disconnected",
+    icon: "🔌", type: "warning",
+    summary: "The adapter is showing as disconnected — physical or driver issue.",
+    steps: [
+      "Check if the Ethernet cable is properly seated at both ends",
+      "Try a different Ethernet port on the switch/router",
+      "Right-click the adapter in Device Manager → Enable",
+      "Update or reinstall the network adapter driver",
+      "Test with a known good cable"
+    ],
+    commands: `<span class="cmd-comment"># Re-enable adapter via CLI</span>
+netsh interface set interface "Ethernet" enable
+
+<span class="cmd-comment"># Check adapter status</span>
+ipconfig /all`
+  },
+  ip_config_issue: {
+    title: "IP Configuration Problem",
+    icon: "🔢", type: "success",
+    summary: "Adapter shows connected but can't reach the gateway — likely an IP addressing issue.",
+    steps: [
+      "Run ipconfig and check if the IP address is in the 169.254.x.x range (APIPA) — indicates DHCP failure",
+      "Release and renew DHCP lease",
+      "Check if DHCP server is reachable or if there's a conflict",
+      "Try assigning a static IP temporarily for testing"
+    ],
+    commands: `<span class="cmd-comment"># Release and renew IP</span>
+ipconfig /release
+ipconfig /renew
+
+<span class="cmd-comment"># Check current IP config</span>
+ipconfig /all`
+  },
+  isp_bandwidth: {
+    title: "ISP Bandwidth Issue",
+    icon: "📶", type: "warning",
+    summary: "All devices affected — likely an ISP or external bandwidth issue.",
+    steps: [
+      "Run a speed test (fast.com or speedtest.net) and compare to subscribed plan",
+      "Check the router's WAN stats for errors or dropped packets",
+      "Try rebooting the modem/router",
+      "Contact ISP with speed test results if below advertised speeds",
+      "Check for usage caps or throttling on the account"
+    ]
+  },
+  wifi_congestion: {
+    title: "Wi-Fi Congestion or Interference",
+    icon: "📡", type: "success",
+    summary: "Wireless-only slowness — likely channel congestion or interference.",
+    steps: [
+      "Use a Wi-Fi analyzer app to check for channel congestion",
+      "Change the router's Wi-Fi channel (prefer auto or 1/6/11 for 2.4GHz)",
+      "Switch to the 5GHz band if available and device is nearby",
+      "Check for interference sources (microwaves, cordless phones, neighboring APs)",
+      "Upgrade to Wi-Fi 6 if equipment is outdated"
+    ]
+  },
+  background_traffic: {
+    title: "Background Application Using Bandwidth",
+    icon: "📊", type: "success",
+    summary: "Recent software may be causing high background network usage.",
+    steps: [
+      "Open Task Manager → Performance → Open Resource Monitor → Network tab",
+      "Identify processes consuming high network bandwidth",
+      "Check for Windows Update running in background",
+      "Check for cloud sync services (OneDrive, Dropbox) doing large syncs",
+      "Temporarily disable or throttle the offending application"
+    ],
+    commands: `<span class="cmd-comment"># Check active network connections</span>
+netstat -b
+
+<span class="cmd-comment"># See processes with network activity</span>
+netstat -ano`
+  },
+  nic_driver: {
+    title: "NIC Driver or Hardware Issue",
+    icon: "🔧", type: "warning",
+    summary: "Single device with slow speeds and no recent changes — NIC driver or hardware.",
+    steps: [
+      "Update network adapter drivers via Device Manager or manufacturer's site",
+      "Check the NIC's duplex settings (should be Auto-negotiate or 1Gbps Full)",
+      "Test with a different Ethernet cable or port",
+      "Run Windows Network Troubleshooter",
+      "Check Event Viewer for NIC errors"
+    ]
+  },
+  monitor_power_cable: {
+    title: "Monitor Power Cable Disconnected",
+    icon: "🔌", type: "success",
+    summary: "Simple fix — the power cable was loose or disconnected.",
+    steps: [
+      "Firmly reconnect the power cable to the back of the monitor",
+      "Ensure the other end is plugged into a live outlet or power strip",
+      "Check if the power strip switch is on",
+      "Try a different power outlet to rule out outlet issues",
+      "Power on the monitor with the physical button"
+    ]
+  },
+  monitor_dead: {
+    title: "Monitor Likely Faulty",
+    icon: "⚠️", type: "warning",
+    summary: "Power cable is connected but LED won't turn on — monitor may be defective.",
+    steps: [
+      "Test with a different power cable if available",
+      "Try the monitor with a different computer to rule out system issue",
+      "Check for visible damage (bulging capacitors, cracked panel)",
+      "If under warranty, initiate RMA with manufacturer",
+      "Issue a replacement unit from inventory"
+    ]
+  },
+  wrong_input: {
+    title: "Wrong Input Source Selected",
+    icon: "🖥️", type: "success",
+    summary: "Monitor is on but set to wrong input — quick fix via the monitor's menu button.",
+    steps: [
+      "Press the monitor's input/source button (usually on the bottom or side)",
+      "Cycle through available inputs (HDMI 1, HDMI 2, DisplayPort, VGA)",
+      "Select the input matching the cable connected to the PC",
+      "If auto-detect is available, enable it in the monitor's OSD menu"
+    ]
+  },
+  gpu_or_cable: {
+    title: "GPU or Video Cable Issue",
+    icon: "🔧", type: "warning",
+    summary: "Correct input selected but no signal — issue is with the video cable or GPU.",
+    steps: [
+      "Try a different video cable (HDMI, DisplayPort, etc.)",
+      "Reseat the cable firmly at both the monitor and PC ends",
+      "Try plugging into onboard graphics if available (disconnect GPU temporarily)",
+      "Reseat the discrete GPU in its PCIe slot",
+      "Test with a known working monitor"
+    ]
+  },
+  monitor_panel: {
+    title: "Monitor Panel or Backlight Issue",
+    icon: "⚠️", type: "warning",
+    summary: "LED on but completely black — possible backlight or panel failure.",
+    steps: [
+      "Shine a flashlight at the screen to check for faint image (backlight failure)",
+      "If image is visible with flashlight, inverter or backlight needs replacement",
+      "Test with another PC to confirm the issue is the monitor, not the PC",
+      "Document and escalate for hardware replacement or depot repair"
+    ]
+  },
+  paper_jam: {
+    title: "Paper Jam",
+    icon: "🖨️", type: "success",
+    summary: "A paper jam is causing the printer to stop.",
+    steps: [
+      "Power off the printer before clearing the jam",
+      "Open all access panels and gently remove jammed paper — pull in the direction of paper path",
+      "Check all areas: input tray, rear access panel, and output tray",
+      "Remove any torn paper fragments completely",
+      "Power on and run a test print"
+    ]
+  },
+  low_ink: {
+    title: "Low Ink / Toner",
+    icon: "🖨️", type: "success",
+    summary: "Printer is reporting low or empty ink/toner cartridge.",
+    steps: [
+      "Check the printer display or software for which cartridge is low",
+      "Replace with the correct cartridge model number",
+      "Shake a laser toner cartridge gently to redistribute remaining toner (temporary fix)",
+      "Run a test print after replacement",
+      "Update printer supplies inventory record"
+    ]
+  },
+  clear_print_queue: {
+    title: "Stuck Print Queue",
+    icon: "🔧", type: "success",
+    summary: "A stuck print job is blocking the queue.",
+    steps: [
+      "Open Services (services.msc) and stop the Print Spooler service",
+      "Navigate to C:\\Windows\\System32\\spool\\PRINTERS and delete all files (not the folder)",
+      "Restart the Print Spooler service",
+      "Try printing again"
+    ],
+    commands: `<span class="cmd-comment"># Stop, clear, and restart spooler</span>
+net stop spooler
+del /Q /F /S "%systemroot%\\System32\\spool\\PRINTERS\\*.*"
+net start spooler`
+  },
+  printer_driver: {
+    title: "Printer Driver Issue",
+    icon: "🔧", type: "warning",
+    summary: "No error, queue empty — likely a driver or communication issue.",
+    steps: [
+      "Remove and re-add the printer in Windows Settings",
+      "Download the latest driver from the manufacturer's website",
+      "Check if the printer is set as the default printer",
+      "Verify the printer IP hasn't changed (for network printers)",
+      "Try printing a test page from within the printer properties"
+    ]
+  },
+  printer_error_code: {
+    title: "Printer Error Code",
+    icon: "⚠️", type: "warning",
+    summary: "Printer is showing a specific error code requiring lookup.",
+    steps: [
+      "Note the exact error code from the printer display",
+      "Look up the code in the printer's manual or manufacturer's support site",
+      "Common codes: E1/E2 = paper issues, E5 = cartridge, E6 = hardware fault",
+      "Perform any recommended fix from the documentation",
+      "Escalate to hardware support if code indicates a hardware fault"
+    ]
+  },
+  startup_items: {
+    title: "Too Many Startup Programs",
+    icon: "⚡", type: "success",
+    summary: "Excessive startup items are slowing down boot time.",
+    steps: [
+      "Open Task Manager (Ctrl+Shift+Esc) → Startup tab",
+      "Disable non-essential programs (e.g., Spotify, Teams, Discord if not needed)",
+      "Use msconfig for additional startup control",
+      "Restart and test boot time improvement"
+    ],
+    commands: `<span class="cmd-comment"># Open startup manager</span>
+msconfig
+
+<span class="cmd-comment"># Or use Task Manager startup tab</span>
+taskmgr`
+  },
+  low_ram_or_drive: {
+    title: "Low RAM or Slow Drive",
+    icon: "💾", type: "warning",
+    summary: "Clean startup but still slow — may be insufficient RAM or a failing HDD.",
+    steps: [
+      "Check RAM amount: 4GB or less for modern Windows will cause slowness",
+      "Run Windows Memory Diagnostic to check for RAM errors",
+      "Check if running on an HDD — SSD upgrade would drastically improve performance",
+      "Run chkdsk to check drive health",
+      "Consider upgrading RAM to at least 8GB"
+    ],
+    commands: `<span class="cmd-comment"># Check memory</span>
+mdsched.exe
+
+<span class="cmd-comment"># Check disk health</span>
+chkdsk C: /f /r`
+  },
+  cpu_hog_process: {
+    title: "High CPU Process",
+    icon: "🔥", type: "success",
+    summary: "A specific process is consuming excessive CPU after extended use.",
+    steps: [
+      "In Task Manager, click CPU column to sort by usage",
+      "Identify the top process — note the name and PID",
+      "Check if it's a legitimate system process or unknown application",
+      "If safe to do so, end the process task",
+      "If recurring, investigate the process (malware scan, update the software)"
+    ]
+  },
+  memory_leak: {
+    title: "Memory Leak / Excessive RAM Usage",
+    icon: "💾", type: "warning",
+    summary: "RAM usage grows over time — likely a memory leak in an application.",
+    steps: [
+      "Sort Task Manager by Memory to find the leaking process",
+      "Restart the problematic application to temporarily free memory",
+      "Check for updates to the application",
+      "Report to the software vendor if it's a known bug",
+      "Schedule a regular system restart as a temporary workaround"
+    ]
+  },
+  disk_health: {
+    title: "Disk Health Issue",
+    icon: "💿", type: "warning",
+    summary: "Resources look normal but slowness persists — check disk health.",
+    steps: [
+      "Run chkdsk /f on the system drive",
+      "Check SMART data using CrystalDiskInfo or similar tool",
+      "Look for high disk utilization in Resource Monitor → Disk tab",
+      "Defragment HDD (not needed for SSD)",
+      "If SMART shows reallocated sectors or read errors, plan for drive replacement"
+    ],
+    commands: `<span class="cmd-comment"># Check disk for errors (requires restart)</span>
+chkdsk C: /f /r
+
+<span class="cmd-comment"># View disk activity</span>
+<span class="cmd-prompt">Task Manager → Performance → Disk</span>`
+  },
+  corrupt_install: {
+    title: "Corrupt or Incomplete Installation",
+    icon: "🔧", type: "success",
+    summary: "Application crashes on launch after recent install/update — likely corrupt files.",
+    steps: [
+      "Uninstall the application completely via Settings → Apps",
+      "Delete any remaining folders in Program Files",
+      "Clear temp files: %temp% in Run dialog",
+      "Re-download the installer from the official source",
+      "Reinstall and test"
+    ]
+  },
+  missing_dependency: {
+    title: "Missing Runtime or Dependency",
+    icon: "📦", type: "success",
+    summary: "App was working before but now crashes — a required dependency may be missing.",
+    steps: [
+      "Check Windows Event Viewer for the specific crash error",
+      "Common missing deps: .NET Framework, Visual C++ Redistributable, DirectX",
+      "Install the required runtimes from Microsoft's website",
+      "Run SFC /scannow to repair any corrupted Windows files"
+    ],
+    commands: `<span class="cmd-comment"># Scan for corrupted system files</span>
+sfc /scannow
+
+<span class="cmd-comment"># Check event logs for crash details</span>
+eventvwr.msc`
+  },
+  app_bug_workaround: {
+    title: "Known Application Bug",
+    icon: "🐛", type: "warning",
+    summary: "Crash triggered by a specific action — likely a software bug.",
+    steps: [
+      "Search the vendor's KB or forums for the specific crash behavior",
+      "Check if a patch or hotfix is available",
+      "Document the exact steps that trigger the crash",
+      "Apply any available workaround from the vendor",
+      "Submit a support ticket to the software vendor with crash logs"
+    ]
+  },
+  ram_or_driver: {
+    title: "RAM or Driver Issue Causing Random Crashes",
+    icon: "⚠️", type: "warning",
+    summary: "Random crashes without a specific trigger often point to RAM or driver instability.",
+    steps: [
+      "Run Windows Memory Diagnostic tool",
+      "Update GPU and chipset drivers",
+      "Check Event Viewer for BSOD stop codes",
+      "Use BlueScreenView to analyze minidump files",
+      "Test with one RAM stick at a time if issue persists"
+    ],
+    commands: `<span class="cmd-comment"># Memory diagnostic</span>
+mdsched.exe
+
+<span class="cmd-comment"># View BSOD details</span>
+eventvwr.msc → Windows Logs → System`
+  },
+  password_sync: {
+    title: "Password Sync Issue",
+    icon: "🔄", type: "success",
+    summary: "Password was changed but hasn't propagated to all systems yet.",
+    steps: [
+      "Wait 15-30 minutes for Active Directory replication if on corporate network",
+      "Try logging in with the new password",
+      "If using cached credentials, ensure device is connected to domain network",
+      "Force AD sync if you have admin access: Run 'gpupdate /force'",
+      "Check if password meets complexity requirements"
+    ],
+    commands: `<span class="cmd-comment"># Force group policy update</span>
+gpupdate /force
+
+<span class="cmd-comment"># Check Kerberos tickets</span>
+klist`
+  },
+  caps_lock: {
+    title: "Caps Lock Was On",
+    icon: "😄", type: "success",
+    summary: "Classic! Caps Lock was causing the password to be entered incorrectly.",
+    steps: [
+      "Turn off Caps Lock",
+      "Try logging in again with the correct password",
+      "Remind user that password fields are case-sensitive"
+    ]
+  },
+  password_reset: {
+    title: "Password Reset Required",
+    icon: "🔑", type: "success",
+    summary: "User has forgotten or lost their password.",
+    steps: [
+      "Verify user identity per your organization's security policy before resetting",
+      "Reset password via Active Directory Users and Computers (ADUC) or admin portal",
+      "Set 'User must change password at next logon'",
+      "Communicate temporary password via secure channel (not email if avoidable)",
+      "Document the reset in your ticketing system"
+    ],
+    commands: `<span class="cmd-comment"># Reset via PowerShell (AD)</span>
+Set-ADAccountPassword -Identity "username" -Reset -NewPassword (ConvertTo-SecureString -AsPlainText "TempPass123!" -Force)
+Set-ADUser -Identity "username" -ChangePasswordAtLogon $true`
+  },
+  account_lockout: {
+    title: "Account Locked Out",
+    icon: "🔒", type: "success",
+    summary: "Too many failed login attempts have locked the account.",
+    steps: [
+      "Unlock account in Active Directory (ADUC → Account tab → Unlock)",
+      "Check if lock was caused by a forgotten saved password on another device",
+      "Clear saved credentials on other devices (Credential Manager in Windows)",
+      "Investigate the source of repeated failed attempts (Event ID 4740)",
+      "Advise user to update saved passwords on all devices"
+    ],
+    commands: `<span class="cmd-comment"># Unlock account via PowerShell</span>
+Unlock-ADAccount -Identity "username"
+
+<span class="cmd-comment"># Check lockout source</span>
+Get-ADUser -Identity "username" -Properties LockedOut, BadLogonCount`
+  },
+  account_disabled: {
+    title: "Account Disabled or Expired",
+    icon: "⛔", type: "warning",
+    summary: "The account has been disabled by IT or has expired.",
+    steps: [
+      "Verify with manager or HR that the user is authorized to have access",
+      "Re-enable account in ADUC if authorized: Right-click → Enable Account",
+      "Check and extend account expiration date if applicable",
+      "Review why it was disabled — may be intentional (security hold, offboarding error)",
+      "Document reason for re-activation"
+    ]
+  },
+  mfa_issue: {
+    title: "MFA / 2FA Not Working",
+    icon: "📱", type: "warning",
+    summary: "User's multi-factor authentication is failing.",
+    steps: [
+      "Check that the device time is synchronized (time skew breaks TOTP codes)",
+      "Have user try a backup code if available",
+      "Re-enroll MFA device if the old device is lost or replaced",
+      "Bypass MFA temporarily (if policy allows) and assist with re-enrollment",
+      "Check if the authenticator app needs to be updated"
+    ]
+  },
+  permission_revoked: {
+    title: "Permissions Were Changed or Revoked",
+    icon: "🔐", type: "warning",
+    summary: "User had access before but it was removed — possibly intentional.",
+    steps: [
+      "Review access change logs in your ITSM or AD audit trail",
+      "Confirm with the resource owner whether revocation was intentional",
+      "If approved, restore access via group membership or share permissions",
+      "Document the change and authorization in the ticket"
+    ]
+  },
+  permission_grant: {
+    title: "New Access Request",
+    icon: "✅", type: "success",
+    summary: "User needs new access to a resource they've never had.",
+    steps: [
+      "Obtain approval from the resource owner or manager (written if possible)",
+      "Add user to the appropriate AD security group",
+      "Test access with the user after changes propagate",
+      "Document the approval and access granted in the ticket",
+      "Set access review reminder if your policy requires periodic review"
+    ]
+  },
+  app_role_assignment: {
+    title: "Application Role Not Assigned",
+    icon: "🔧", type: "success",
+    summary: "User needs a role assigned within the application.",
+    steps: [
+      "Identify the correct role needed based on the user's job function",
+      "Get approval from the app owner or department manager",
+      "Assign the role in the application's admin console or via AD group",
+      "Have user log out and back in to refresh permissions",
+      "Test with user to confirm access is working"
+    ]
+  },
+  sso_or_vpn: {
+    title: "SSO or VPN Access Issue",
+    icon: "🌐", type: "warning",
+    summary: "Access denied to a web portal — may need SSO enrollment or VPN.",
+    steps: [
+      "Check if the resource requires VPN and ensure user is connected",
+      "Verify SSO (Single Sign-On) is configured for the user's account",
+      "Clear browser cookies and try again",
+      "Check if the user's SSO group membership is correct in the identity provider",
+      "Contact the application admin if SSO provisioning is needed"
+    ]
+  },
+  browser_adware: {
+    title: "Browser Adware / Malicious Extension",
+    icon: "🧹", type: "success",
+    summary: "Pop-ups only in browser — likely a malicious extension or browser hijack.",
+    steps: [
+      "Review installed browser extensions and remove suspicious ones",
+      "Reset browser settings to default",
+      "Clear all browsing data including cached images and cookies",
+      "Run Malwarebytes (free version) for a quick scan",
+      "Check browser homepage and search engine settings for unauthorized changes"
+    ]
+  },
+  adware_full: {
+    title: "System-Wide Adware",
+    icon: "🦠", type: "warning",
+    summary: "Pop-ups outside the browser indicate deeper adware or PUP infection.",
+    steps: [
+      "Run a full scan with Windows Defender or endpoint protection tool",
+      "Run Malwarebytes in addition to Defender",
+      "Check installed programs for unfamiliar software and uninstall",
+      "Check Task Scheduler for suspicious tasks",
+      "Consider imaging the machine if adware persists"
+    ]
+  },
+  malware_scan: {
+    title: "Run Full Malware Scan",
+    icon: "🔍", type: "warning",
+    summary: "Slow PC with high disk usage could indicate malware activity.",
+    steps: [
+      "Disconnect from the network to prevent potential data exfiltration",
+      "Boot into Safe Mode and run a full antivirus scan",
+      "Use Malwarebytes alongside Windows Defender",
+      "Check Task Manager and Resource Monitor for unknown processes",
+      "Escalate to security team if malware is confirmed"
+    ]
+  },
+  ransomware_response: {
+    title: "Ransomware Response — URGENT",
+    icon: "🚨", type: "warning",
+    summary: "Encrypted or renamed files strongly suggest ransomware. Act immediately.",
+    steps: [
+      "IMMEDIATELY disconnect the device from the network (unplug Ethernet, disable Wi-Fi)",
+      "Do NOT restart the machine — ransomware may encrypt more on reboot",
+      "Preserve the device state and escalate to IT Security / incident response team NOW",
+      "Identify the ransomware variant using ID Ransomware (id-ransomware.malwarehunterteam.com)",
+      "Check and preserve backups — do NOT restore until systems are clean",
+      "Document timeline: when it was noticed, what files are affected, recent user activity"
+    ]
+  },
+  isolate_network: {
+    title: "Suspected Compromise — Isolate Device",
+    icon: "🚨", type: "warning",
+    summary: "Suspicious network traffic may indicate a compromised machine.",
+    steps: [
+      "Immediately isolate the machine from the network",
+      "Escalate to IT Security / SOC team with details of observed traffic",
+      "Preserve logs: Windows Event Logs, browser history, recently run processes",
+      "Do not allow the user to continue working on the machine until cleared",
+      "Begin incident response process per your organization's IRP"
+    ]
+  },
+  credential_compromise: {
+    title: "Corporate Credentials Compromised",
+    icon: "🚨", type: "warning",
+    summary: "User entered corporate credentials on a phishing site — immediate action needed.",
+    steps: [
+      "Immediately reset the user's AD/corporate password",
+      "Revoke all active sessions (if using Azure AD / M365: sign out all sessions)",
+      "Notify the security team to investigate for unauthorized access",
+      "Enable or verify MFA is enforced on the account",
+      "Review logs for any suspicious logins or changes made with the compromised credentials",
+      "File a security incident report"
+    ]
+  },
+  personal_creds_phish: {
+    title: "Personal Credentials Phished",
+    icon: "⚠️", type: "warning",
+    summary: "User entered personal credentials — advise and document.",
+    steps: [
+      "Advise user to immediately change the password on the affected personal account",
+      "Enable MFA on the personal account if not already set",
+      "Check if the same password was used on corporate accounts — if so, reset those too",
+      "Advise user to check haveibeenpwned.com for exposure",
+      "Forward phishing email to abuse@[domain] and report to IT security for awareness"
+    ]
+  },
+  malware_download: {
+    title: "Potential Malware Download",
+    icon: "🦠", type: "warning",
+    summary: "A file was downloaded after clicking — must assess and contain.",
+    steps: [
+      "Determine if the file was opened or executed",
+      "If executed: isolate the machine from the network immediately",
+      "If not opened: delete the file and run a full AV scan",
+      "Run Malwarebytes full scan regardless",
+      "Escalate to security team and document the incident",
+      "Review endpoint protection logs for any alerts triggered"
+    ]
+  },
+  phish_monitoring: {
+    title: "Link Clicked — Monitor and Educate",
+    icon: "👀", type: "success",
+    summary: "Just a click with no further action — lower risk but still worth monitoring.",
+    steps: [
+      "Advise user to monitor for any unusual account activity",
+      "Have IT review proxy/firewall logs for the destination URL",
+      "Block the malicious domain in your web filter if not already blocked",
+      "Report the phishing email to your security team for blocklist updates",
+      "Use this as a teachable moment — provide user security awareness guidance"
+    ]
+  }
+};
+
+// ===================== APP STATE =====================
+let state = {
+  screen: 'home', // home | tree | resolve
+  category: null,
+  treeIndex: 0,
+  currentNode: null,
+  breadcrumb: [],
+  pathHistory: []
+};
+
+// ===================== RENDER =====================
+function render() {
+  const main = document.getElementById('mainContent');
+  
+  // Update sidebar active
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === state.category);
+  });
+
+  if (state.screen === 'home') {
+    main.innerHTML = renderHome();
+    updateSessionStat('No active session');
+  } else if (state.screen === 'tree') {
+    main.innerHTML = renderTree();
+  } else if (state.screen === 'resolve') {
+    main.innerHTML = renderResolution();
+  }
+}
+
+function renderHome() {
+  return `
+    <div class="home-screen">
+      <div class="home-intro">
+        <div class="home-title">IT Troubleshooting Tree</div>
+        <p class="home-sub">Work through common IT support scenarios step-by-step. Select a category to begin a guided diagnostic session — ideal for practicing your troubleshooting thought process.</p>
+      </div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;">Choose a Category</div>
+      <div class="cats-grid">
+        ${Object.entries(categories).map(([key, cat]) => `
+          <div class="cat-card" style="--card-accent:${cat.color}" onclick="startCategory('${key}')">
+            <div class="cat-card-icon">${cat.icon}</div>
+            <div class="cat-card-name">${cat.name}</div>
+            <div class="cat-card-count">${cat.trees.length} scenario${cat.trees.length > 1 ? 's' : ''}</div>
+            <div class="cat-card-bar" style="background:${cat.color}"></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function renderTree() {
+  const cat = categories[state.category];
+  const tree = cat.trees[state.treeIndex];
+  const node = state.currentNode;
+
+  const bcHtml = `
+    <div class="breadcrumb">
+      <span onclick="goHome()">Home</span>
+      <span class="sep">›</span>
+      <span onclick="startCategory('${state.category}')">${cat.name}</span>
+      <span class="sep">›</span>
+      <span class="current">${tree.title}</span>
+    </div>`;
+
+  const pathHtml = state.pathHistory.length > 0 ? `
+    <div class="path-history">
+      <div class="path-history-title">Your path so far</div>
+      <div class="path-steps">
+        ${state.pathHistory.map(p => `
+          <span class="path-tag">${p.q}</span>
+          <span class="path-tag answer">→ ${p.a}</span>
+        `).join('')}
+      </div>
+    </div>` : '';
+
+  const letters = ['A','B','C','D','E'];
+
+  return `
+    ${bcHtml}
+    ${pathHtml}
+    <div class="question-card">
+      <div class="step-badge" style="background:${cat.color}">${cat.icon} ${cat.name}</div>
+      <div class="question-title">${node.question}</div>
+      ${node.hint ? `<div class="question-hint">${node.hint}</div>` : ''}
+      <div class="options-grid">
+        ${node.options.map((opt, i) => `
+          <button class="option-btn" onclick="selectOption(${i})">
+            <span class="option-letter">${letters[i]}</span>
+            <span>${opt.label}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+    ${cat.trees.length > 1 ? `
+      <div style="font-size:12.5px;color:var(--text-muted);padding:0 4px;">
+        Scenario ${state.treeIndex + 1} of ${cat.trees.length} in ${cat.name}
+      </div>` : ''}`;
+}
+
+function renderResolution() {
+  const cat = categories[state.category];
+  const tree = cat.trees[state.treeIndex];
+  const res = resolutions[state.currentResolution];
+  
+  if (!res) return `<div>Resolution not found.</div>`;
+
+  const bcHtml = `
+    <div class="breadcrumb">
+      <span onclick="goHome()">Home</span>
+      <span class="sep">›</span>
+      <span onclick="startCategory('${state.category}')">${cat.name}</span>
+      <span class="sep">›</span>
+      <span onclick="restartTree()">${tree.title}</span>
+      <span class="sep">›</span>
+      <span class="current">Resolution</span>
+    </div>`;
+
+  const pathHtml = state.pathHistory.length > 0 ? `
+    <div class="path-history">
+      <div class="path-history-title">Diagnostic path taken</div>
+      <div class="path-steps">
+        ${state.pathHistory.map(p => `
+          <span class="path-tag">${p.q}</span>
+          <span class="path-tag answer">→ ${p.a}</span>
+        `).join('')}
+      </div>
+    </div>` : '';
+
+  return `
+    ${bcHtml}
+    ${pathHtml}
+    <div class="resolution-card">
+      <div class="resolution-header">
+        <div class="res-icon ${res.type}">${res.icon}</div>
+        <div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Resolution Found</div>
+          <div class="resolution-title">${res.title}</div>
+        </div>
+      </div>
+      <div class="resolution-body">${res.summary}</div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Steps to Resolve</div>
+      <ul class="steps-list">
+        ${res.steps.map((s, i) => `
+          <li>
+            <span class="step-num">${i+1}</span>
+            <span>${s}</span>
+          </li>`).join('')}
+      </ul>
+      ${res.commands ? `
+        <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Useful Commands</div>
+        <div class="command-box">${res.commands}</div>` : ''}
+      <div class="res-actions">
+        <button class="btn-primary" onclick="restartTree()">↺ Try Again</button>
+        ${cat.trees.length > 1 && state.treeIndex + 1 < cat.trees.length
+          ? `<button class="btn-outline" onclick="nextTree()">Next Scenario →</button>` : ''}
+        <button class="btn-outline" onclick="startCategory('${state.category}')">All ${cat.name} Scenarios</button>
+        <button class="btn-ghost" onclick="goHome()">Home</button>
+      </div>
+    </div>`;
+}
+
+// ===================== CATEGORY SCREEN =====================
+function startCategory(catKey) {
+  const cat = categories[catKey];
+  state.category = catKey;
+  state.screen = 'tree-select';
+
+  const main = document.getElementById('mainContent');
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === catKey);
+  });
+
+  if (cat.trees.length === 1) {
+    startTree(catKey, 0);
+    return;
+  }
+
+  main.innerHTML = `
+    <div class="home-screen">
+      <div class="breadcrumb">
+        <span onclick="goHome()">Home</span>
+        <span class="sep">›</span>
+        <span class="current">${cat.name}</span>
+      </div>
+      <div class="home-intro" style="margin-bottom:20px;">
+        <div style="font-size:22px;margin-bottom:6px;">${cat.icon} ${cat.name}</div>
+        <div style="font-size:13.5px;color:var(--text-muted);">Select a scenario to troubleshoot</div>
+      </div>
+      <div class="cats-grid">
+        ${cat.trees.map((tree, i) => `
+          <div class="cat-card" style="--card-accent:${cat.color}" onclick="startTree('${catKey}', ${i})">
+            <div class="cat-card-icon">📋</div>
+            <div class="cat-card-name">${tree.title}</div>
+            <div class="cat-card-count">${tree.hint}</div>
+            <div class="cat-card-bar" style="background:${cat.color}"></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function startTree(catKey, treeIdx) {
+  const cat = categories[catKey];
+  const tree = cat.trees[treeIdx];
+  state.category = catKey;
+  state.treeIndex = treeIdx;
+  state.screen = 'tree';
+  state.pathHistory = [];
+  state.currentNode = { question: tree.question, hint: tree.hint, options: tree.options };
+  updateSessionStat(`${cat.icon} ${tree.title}`);
+  render();
+}
+
+function selectOption(i) {
+  const node = state.currentNode;
+  const opt = node.options[i];
+  
+  state.pathHistory.push({ q: shortenQ(node.question), a: opt.label });
+
+  if (opt.resolve) {
+    state.currentResolution = opt.resolve;
+    state.screen = 'resolve';
+    render();
+  } else if (opt.next) {
+    state.currentNode = opt.next;
+    render();
+  }
+}
+
+function restartTree() {
+  startTree(state.category, state.treeIndex);
+}
+
+function nextTree() {
+  startTree(state.category, state.treeIndex + 1);
+}
+
+function goHome() {
+  state.screen = 'home';
+  state.category = null;
+  state.pathHistory = [];
+  render();
+}
+
+function shortenQ(q) {
+  return q.length > 40 ? q.substring(0, 38) + '…' : q;
+}
+
+function updateSessionStat(text) {
+  document.getElementById('session-stat').textContent = text;
+}
+
+// ===================== INIT =====================
+document.getElementById('homeBtn').addEventListener('click', goHome);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (state.category) restartTree(); else goHome();
+});
+
+render();
+</script>
+</body>
+</html>
