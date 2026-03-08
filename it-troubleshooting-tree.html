@@ -9,7 +9,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #F7F6F2;
+    --cmd-bg: #1A1816; --cmd-text: #7CFC8A; --bg: #F7F6F2;
     --surface: #FFFFFF;
     --surface2: #F0EEE8;
     --border: #E2DDD4;
@@ -278,8 +278,8 @@
     font-size: 20px;
     flex-shrink: 0;
   }
-  .res-icon.success { background: #E8F5EE; }
-  .res-icon.warning { background: #FEF3E2; }
+  .res-icon.success { background: var(--green-light, #E8F5EE); }
+  .res-icon.warning { background: var(--accent-light, #FEF3E2); }
   .resolution-title {
     font-family: 'Sora', sans-serif;
     font-size: 20px;
@@ -321,8 +321,7 @@
     margin-top: 1px;
   }
   .command-box {
-    background: #1A1816;
-    color: #7CFC8A;
+    background: var(--cmd-bg); color: var(--cmd-text);
     font-family: 'Courier New', monospace;
     font-size: 13px;
     padding: 14px 18px;
@@ -331,8 +330,8 @@
     line-height: 1.7;
     overflow-x: auto;
   }
-  .cmd-comment { color: #666; }
-  .cmd-prompt { color: #aaa; }
+  .cmd-comment { color: var(--muted); }
+  .cmd-prompt { color: var(--muted); }
 
   .res-actions {
     display: flex;
@@ -473,8 +472,11 @@
     header { padding: 14px 18px; }
   }
 
+[data-theme="light"] {
+  --cmd-bg: #1A1816; --cmd-text: #7CFC8A;
+}
 [data-theme="dark"] {
-  --bg:#0D1117;--surface:#161B22;--surface2:#21262D;--surface3:#2D333B;
+  --green-light:#0d2e1a; --accent-light:#2a1800; --cmd-bg:#1A1816; --cmd-text:#7CFC8A; --bg:#0D1117;--surface:#161B22;--surface2:#21262D;--surface3:#2D333B;
   --border:#30363D;--text:#E6EDF3;--muted:#7D8590;
   --shadow:0 4px 20px rgba(0,0,0,0.4);
 }
