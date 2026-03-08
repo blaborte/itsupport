@@ -104,6 +104,23 @@
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   @media (max-width: 600px) { .app { padding: 20px 16px; } header { padding: 14px 18px; } }
+
+[data-theme="dark"] {
+  --bg:#0D1117;--surface:#161B22;--surface2:#21262D;--surface3:#2D333B;
+  --border:#30363D;--text:#E6EDF3;--muted:#7D8590;
+  --shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] { --accent:#FFA657;--accent-light:#2a1800; --green:#3FB950;--green-light:#0d2e1a;--red:#F85149;--red-light:#2e0d0d; }
+
+.theme-toggle{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;
+}
+.theme-toggle:hover{background:var(--border);}
+
 </style>
 </head>
 <body>
@@ -117,6 +134,7 @@
     </div>
   </div>
   <a href="index.html" class="back-btn">← Back to Hub</a>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
 </header>
 
 <div class="app" id="app"></div>
@@ -380,5 +398,23 @@ function renderResults() {
 
 render();
 </script>
+
+<script>
+(function(){
+  const t = localStorage.getItem('hub-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
+})();
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('hub-theme', next);
+  const btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+}
+</script>
+
 </body>
 </html>

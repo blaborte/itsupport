@@ -93,6 +93,30 @@
   .res-grade { font-family: 'Sora', sans-serif; font-size: 48px; font-weight: 700; letter-spacing: -2px; }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+
+[data-theme="dark"] {
+  --bg:#0F1117;--surface:#181C25;--surface2:#1E2330;--surface3:#252B3B;
+  --border:#2A3040;--text:#E8EAF0;--muted:#6B7280;
+  --accent:#EF4444;--green:#22C55E;--cyan:#06B6D4;
+}
+
+.theme-toggle{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;
+}
+.theme-toggle:hover{background:var(--border);}
+
+
+[data-theme="light"] {
+  --bg:#F7F6F2;--surface:#fff;--surface2:#F0EEE8;--surface3:#E8E4DC;
+  --border:#E2DDD4;--text:#1A1816;--muted:#7A7168;
+  --shadow:0 2px 12px rgba(0,0,0,0.07);
+  --accent:#C0392B;--green:#2E7D52;--cyan:#1B5FA8;
+}
+
 </style>
 </head>
 <body>
@@ -106,6 +130,7 @@
     </div>
   </div>
   <a href="index.html" class="back-btn">← Back to Hub</a>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
 </header>
 
 <div class="app" id="app"></div>
@@ -387,5 +412,23 @@ function renderResults() {
 
 render();
 </script>
+
+<script>
+(function(){
+  const t = localStorage.getItem('hub-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
+})();
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('hub-theme', next);
+  const btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+}
+</script>
+
 </body>
 </html>
